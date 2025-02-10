@@ -1,2 +1,2 @@
 # 35L_Group_Project
-35L Project implementation of Kahoot which we have named Kahuut.
+A browser-based quiz game named Kahuut, **strongly** drawing inspiration from Kahoot.
