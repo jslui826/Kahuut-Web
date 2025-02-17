@@ -1,0 +1,5 @@
+You need to have postgres installed.
+
+Depending on your operating system, you need to start up postgres.
+
+In MacOS, `brew services start postgresql` starts up the background process with default port 5432.
