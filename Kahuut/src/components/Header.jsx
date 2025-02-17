@@ -5,8 +5,6 @@ const Header = () => {
     return (
         <div>
             <div style={{ textAlign: "center"}}>
-                <h1 style={{ color: "purple" }}>Kahuut</h1>
-                <p>Testing a header</p>
                 <nav>
                     <ul style={{ listStyleType: "none", padding: 0}}>
                         <li><Link to="/">Home</Link></li>
