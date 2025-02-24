@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import '../old/old.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import '../css/home.css'
 
-const OldHome = () => {
+const Home = () => {
     const title = "Kahuut".split("");
     const [animationComplete, setAnimationComplete] = useState(false);
     const navigate = useNavigate();
@@ -42,4 +42,4 @@ const OldHome = () => {
     );
 };
 
-export default OldHome;
+export default Home;

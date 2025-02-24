@@ -10,10 +10,4 @@ const pool = new Pool({
     database: "kahuut"
 })
 
-pool.query("SELECT NOW()", (err, res) => {
-    if (err) {
-        console.error("Connection error:", err);
-    } else {
-        console.log("Connected to PostgreSQL:", res.rows);
-    }
-});
+module.exports = pool
