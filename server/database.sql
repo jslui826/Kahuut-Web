@@ -1,14 +1,16 @@
 CREATE DATABASE kahuut;
 
-CREATE TABLE quiz(
+CREATE TABLE quizzes(
      quiz_id SERIAL PRIMARY KEY,
      description VARCHAR(255)
 );
 
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
+    quiz_id INT REFERENCES quizzes(quiz_id),
     question_text TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    answer TEXT NOT NULL
 );
 
 CREATE TYPE asset_type_enum AS ENUM ('image', 'audio');
