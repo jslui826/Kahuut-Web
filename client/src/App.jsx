@@ -6,7 +6,7 @@ import Login from './pages/login'
 import Register from './pages/register'
 import Home from './pages/home'
 import Navbar from './components/navbar'
-import Buttons from './components/buttons'
+import Quizzes from './pages/quizzes';
 
 const App = () => (
   <div style={{ textAlign: "center" }}>
@@ -16,6 +16,7 @@ const App = () => (
       <Route path="/start" element={<Start />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/quiz" element={<Quizzes />} />
     </Routes>
   </div>
 )
