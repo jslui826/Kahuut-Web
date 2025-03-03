@@ -11,38 +11,54 @@ const musicFiles = [
 ];
 
 const QuizPage = () => {
-    const [selectedQuiz, setSelectedQuiz] = useState(1);
+    const [quizzes, setQuizzes] = useState([]); // Store quizzes from API
+    const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
     const audioRef = useRef(null);
 
-    // Play default music on load
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.play().catch(error => {
-                console.error("Failed to play audio:", error);
-            });
+    // Fetch quizzes from backend
+    const fetchQuizzes = async (query = "") => {
+        try {
+            const url = query
+                ? `http://localhost:4000/quizzes/search?query=${query}`
+                : "http://localhost:4000/quizzes";
+
+            const response = await fetch(url);
+            const data = await response.json();
+            setQuizzes(data);
+
+            // Reset selection if new data comes in
+            if (data.length > 0) setSelectedQuizIndex(0);
+        } catch (error) {
+            console.error("Error fetching quizzes:", error);
         }
-    }, [currentMusic]);
-
-    // Play selected music
-    const selectMusic = (music) => {
-        setCurrentMusic(`/assets/${music}`);
-        setShowMusicPopup(false);
     };
 
-    // Search functionality for quizzes
+    // Load quizzes on mount
+    useEffect(() => {
+        fetchQuizzes();
+    }, []);
+
+    // Search functionality
     const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
+        const query = e.target.value;
+        setSearchQuery(query);
+        if (query.length > 2) {
+            fetchQuizzes(query);
+        } else {
+            fetchQuizzes();
+        }
     };
 
+    // Handle quiz navigation
     const handleLeft = () => {
-        setSelectedQuiz((prev) => (prev > 1 ? prev - 1 : 5));
+        setSelectedQuizIndex((prev) => (prev > 0 ? prev - 1 : quizzes.length - 1));
     };
 
     const handleRight = () => {
-        setSelectedQuiz((prev) => (prev < 5 ? prev + 1 : 1));
+        setSelectedQuizIndex((prev) => (prev < quizzes.length - 1 ? prev + 1 : 0));
     };
 
     return (
@@ -57,7 +73,7 @@ const QuizPage = () => {
                         <h2>Select Background Music</h2>
                         <ul>
                             {musicFiles.map((file, index) => (
-                                <li key={index} onClick={() => selectMusic(file)}>
+                                <li key={index} onClick={() => setCurrentMusic(`/assets/${file}`)}>
                                     🎵 {file.replace(".mp3", "")}
                                 </li>
                             ))}
@@ -97,14 +113,18 @@ const QuizPage = () => {
                     <button className="nav-button left" onClick={handleLeft}>⬅</button>
 
                     <div className="quiz-list">
-                        {[1, 2, 3, 4, 5].map((id) => (
-                            <div
-                                key={id}
-                                className={`quiz-card ${id === selectedQuiz ? "selected" : ""}`}
-                            >
-                                <h3>Quiz {id}</h3>
-                            </div>
-                        ))}
+                        {quizzes.length > 0 ? (
+                            quizzes.map((quiz, index) => (
+                                <div
+                                    key={quiz.quiz_id}
+                                    className={`quiz-card ${index === selectedQuizIndex ? "selected" : ""}`}
+                                >
+                                    <h3>{quiz.description}</h3>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No quizzes found.</p>
+                        )}
                     </div>
 
                     <button className="nav-button right" onClick={handleRight}>➡</button>

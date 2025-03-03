@@ -4,7 +4,7 @@ const Pool = require('pg').Pool
 // this requires that the database be running at the time of use
 const pool = new Pool({
     user: "postgres", 
-    password: "",
+    password: "kahuut",
     host: "localhost",
     port: 5432,
     database: "kahuut"

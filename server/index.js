@@ -12,80 +12,124 @@ app.use(express.json())
 
 //TODO:
 
-//upload a PDF => questions, answers
-/*
- app.post("/quizzes", async(req, res) =>{
-    try{
-    
-    } catch (err){
-        console.error(err.message) 
-    }
-})
-*/
-
-// Posts quizzes to db
+// Posts a quiz
 app.post("/quizzes", async (req, res) => {
-    try {
-      const { description, questions } = req.body; // Expects description and questions array
-  
-      // Put quiz into db
-      const quizResult = await pool.query(
-        "INSERT INTO quizzes (description) VALUES ($1) RETURNING *",
-        [description]
+  try {
+    const { description, asset, questions } = req.body; // Asset includes {type, mongo_asset_id}
+
+    // Insert quiz
+    const quizResult = await pool.query(
+      "INSERT INTO quizzes (description) VALUES ($1) RETURNING *",
+      [description]
+    );
+
+    const quizId = quizResult.rows[0].quiz_id;
+
+    // Insert asset if provided
+    let assetId = null;
+    if (asset) {
+      const assetResult = await pool.query(
+        "INSERT INTO quizzes_assets (quiz_id, asset_type, mongo_asset_id) VALUES ($1, $2, $3) RETURNING id",
+        [quizId, asset.asset_type, asset.mongo_asset_id]
       );
-  
-      const quizId = quizResult.rows[0].quiz_id;
-  
-      // Put questions into db
-      const questionPromises = questions.map((q) =>
-        pool.query(
-          "INSERT INTO questions (quiz_id, question_text, answer) VALUES ($1, $2, $3)",
-          [quizId, q.question_text, q.answer]
-        )
-      );
-  
-      await Promise.all(questionPromises);
-  
-      res.json({ message: "Quiz created successfully", quiz: quizResult.rows[0] });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      assetId = assetResult.rows[0].id;
+
+      // Update quiz with asset_id
+      await pool.query("UPDATE quizzes SET asset_id = $1 WHERE quiz_id = $2", [
+        assetId,
+        quizId,
+      ]);
     }
-  });
 
-  /*
-  JSON example for POST:
+    // Insert questions
+    const questionPromises = questions.map((q) =>
+      pool.query(
+        "INSERT INTO questions (quiz_id, question_text, answer) VALUES ($1, $2, $3)",
+        [quizId, q.question_text, q.answer]
+      )
+    );
 
-  {
-  "description": "General Knowledge Quiz",
-  "questions": [
-    { "question_text": "What is the largest land mammal?", "answer": "The African elephant" },
-    { "question_text": "Which Queen of England was also celebrated for writing poetry?", "answer": "Queen Elizabeth I" }
-  ]
-}
-  */
+    await Promise.all(questionPromises);
+
+    res.json({
+      message: "Quiz created successfully",
+      quiz: { quiz_id: quizId, description, asset_id: assetId },
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
   
 // Gets quizzes from db
 app.get("/quizzes", async (req, res) => {
-    try {
-      const quizzes = await pool.query("SELECT * FROM quizzes");
-  
-      const quizzesWithQuestions = await Promise.all(
-        quizzes.rows.map(async (quiz) => {
-          const questions = await pool.query(
-            "SELECT * FROM questions WHERE quiz_id = $1 ORDER BY created_at",
-            [quiz.quiz_id]
-          );
-          return { ...quiz, questions: questions.rows };
-        })
-      );
-  
-      res.json(quizzesWithQuestions);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+  try {
+    const quizzes = await pool.query("SELECT * FROM quizzes");
+
+    const quizzesWithDetails = await Promise.all(
+      quizzes.rows.map(async (quiz) => {
+        // Get asset
+        const assetResult = await pool.query(
+          "SELECT * FROM quizzes_assets WHERE quiz_id = $1",
+          [quiz.quiz_id]
+        );
+        const asset = assetResult.rows.length ? assetResult.rows[0] : null;
+
+        // Get questions
+        const questionsResult = await pool.query(
+          "SELECT * FROM questions WHERE quiz_id = $1 ORDER BY created_at",
+          [quiz.quiz_id]
+        );
+
+        return {
+          ...quiz,
+          asset,
+          questions: questionsResult.rows,
+        };
+      })
+    );
+
+    res.json(quizzesWithDetails);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+// Search bar feature
+app.get("/quizzes/search", async (req, res) => {
+  try {
+    const searchQuery = req.query.query;
+    if (!searchQuery) {
+      return res.status(400).json({ error: "Search query is required" });
     }
-  });
+
+    const quizzes = await pool.query(
+      "SELECT * FROM quizzes WHERE description ILIKE $1",
+      [`%${searchQuery}%`]
+    );
+
+    const quizzesWithDetails = await Promise.all(
+      quizzes.rows.map(async (quiz) => {
+        const assetResult = await pool.query(
+          "SELECT * FROM quizzes_assets WHERE quiz_id = $1",
+          [quiz.quiz_id]
+        );
+        const asset = assetResult.rows.length ? assetResult.rows[0] : null;
+
+        return {
+          ...quiz,
+          asset,
+        };
+      })
+    );
+
+    res.json(quizzesWithDetails);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 
 //upload images per question
