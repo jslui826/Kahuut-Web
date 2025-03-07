@@ -8,7 +8,14 @@ import Home from './pages/home'
 import Navbar from './components/navbar'
 import Quizzes from './pages/quizzes';
 
-const App = () => (
+function App() {
+  const [token, setToken] = useState();
+
+  if (!token) {
+    return <Login setToken={setToken} />
+  }
+
+  return (
   <div style={{ textAlign: "center" }}>
     <Navbar />
     <Routes>
@@ -19,6 +26,7 @@ const App = () => (
       <Route path="/quiz" element={<Quizzes />} />
     </Routes>
   </div>
-)
+  )
+}
 
 export default App
