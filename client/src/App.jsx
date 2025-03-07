@@ -1,19 +1,30 @@
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
+
 import './App.css'
 import Start from './pages/start'
 import Login from './pages/login'
 import Register from './pages/register'
 import Home from './pages/home'
 import Navbar from './components/navbar'
-import Quizzes from './pages/quizzes';
+import Quizzes from './pages/quizzes'
+import useToken from './components/useToken'
 
 function App() {
-  const [token, setToken] = useState();
+  const { token, setToken } = useToken();
 
-  /*if (!token) {
-    return <Login setToken={setToken} />
-  }*/
+  if (!token) { // Set the homepage to the login page prior to user login
+    return (
+      <div style={{ textAlign: "center" }}>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Login setToken={setToken} />} />
+          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </div>
+    )
+  }
 
   return (
   <div style={{ textAlign: "center" }}>
