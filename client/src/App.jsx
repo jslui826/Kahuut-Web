@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
 import Start from './pages/start'
 import Login from './pages/login'
@@ -11,9 +11,9 @@ import Quizzes from './pages/quizzes';
 function App() {
   const [token, setToken] = useState();
 
-  if (!token) {
+  /*if (!token) {
     return <Login setToken={setToken} />
-  }
+  }*/
 
   return (
   <div style={{ textAlign: "center" }}>
@@ -21,7 +21,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/start" element={<Start />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login setToken={setToken} />} />
       <Route path="/register" element={<Register />} />
       <Route path="/quiz" element={<Quizzes />} />
     </Routes>

@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types'
+import { useState } from 'react'
 
 async function loginUser(credentials) {
-    return fetch('http://localhost:3000/login', {
+    return fetch('http://localhost:8080/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -11,25 +12,26 @@ async function loginUser(credentials) {
         .then(data => data.json())
 }
 
-export default function Login( { setToken } ) {
+function Login({ setToken }) {
     const [username, setUserName] = useState();
     const [password, setPassword] = useState();
 
     const handleSubmit = async e => {
         e.preventDefault();
         const token = await loginUser({
-            username, 
+            username,
             password
         });
         setToken(token);
     }
-    return (
+
+    return(
         <div class="relative flex flex-col items-center justify-center h-screen overflow-hidden">
             <div class="w-full p-6 bg-white border-t-4 border-gray-600 rounded-md shadow-md border-top lg:max-w-lg">
                 <h1 class="text-3xl font-semibold text-center text-gray-700">
                     Login
                 </h1>
-                <form class="space-y-4" onSubmit={handleSubmit} >
+                <form class="space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label class="label">
                             <span class="text-base label-text">Email</span>
@@ -51,6 +53,8 @@ export default function Login( { setToken } ) {
         </div>
     )
 }
+
+export default Login
 
 Login.propTypes = {
     setToken: PropTypes.func.isRequired
