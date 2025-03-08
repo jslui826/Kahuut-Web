@@ -12,7 +12,7 @@ async function signUpUser(credentials) {
         .then(data => data.json())
 }
 
-function Register() {
+function Register({ setToken }) {
     const [username, setUserName] = useState();
     const [password, setPassword] = useState();
 

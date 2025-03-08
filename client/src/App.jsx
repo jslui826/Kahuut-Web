@@ -16,11 +16,10 @@ function App() {
   if (!token) { // Set the homepage to the login page prior to user login
     return (
       <div style={{ textAlign: "center" }}>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<Login setToken={setToken} />} />
+          <Route path="/" element={<Register setToken={setToken} />} />
           <Route path="/login" element={<Login setToken={setToken} />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register setToken={setToken} />} />
         </Routes>
       </div>
     )
@@ -33,7 +32,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/start" element={<Start />} />
       <Route path="/login" element={<Login setToken={setToken} />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<Register setToken={setToken} />} />
       <Route path="/quiz" element={<Quizzes />} />
     </Routes>
   </div>
