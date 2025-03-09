@@ -8,8 +8,15 @@ app.use(cors());
 
 app.use('/login', (req, res) => {
     res.send({
-        token: 'test123'
+        token: 'login_token'
+    });
+});
+
+app.use('/signup', (req, res) => {
+    res.send({
+        token: 'signup_token'
     });
 });
 
 app.listen(8080, () => console.log('API is running on http://localhost:8080/login'));
+app.listen(5050, () => console.log('API is running on http://localhost:5050/login'));
