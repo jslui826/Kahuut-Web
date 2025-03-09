@@ -9,6 +9,8 @@ import Home from './pages/home'
 import Navbar from './components/navbar'
 import Quizzes from './pages/quizzes'
 import useToken from './components/useToken'
+import Play from "./pages/play";
+
 
 function App() {
   const { token, setToken } = useToken();
@@ -34,6 +36,7 @@ function App() {
       <Route path="/login" element={<Login setToken={setToken} />} />
       <Route path="/register" element={<Register setToken={setToken} />} />
       <Route path="/quiz" element={<Quizzes />} />
+      <Route path="/play" element={<Play />} />
     </Routes>
   </div>
   )
