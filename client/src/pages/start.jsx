@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import '../css/Start.css' // Make sure this file exists
+import logo from '../assets/crymoji.png'
 
 const Start = () => {
     const navigate = useNavigate();
@@ -7,7 +8,7 @@ const Start = () => {
     return (
         <div className="start-container">
             <div className="logo-container">
-                <img src="/assets/start-image.png" alt="Logo" className="logo" />
+                <img src={logo} alt="Logo" className="logo" />
             </div>
 
             <div className="button-container">
