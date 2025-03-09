@@ -10,6 +10,7 @@ async function loginUser(credentials) {
         body: JSON.stringify(credentials)
     })
         .then(data => data.json())
+        .catch(error => console.log(error))
 }
 
 function Login({ setToken }) {

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 
 async function signUpUser(credentials) {
-    return fetch('http://localhost:8080/signup', {
+    return fetch('http://localhost:5050/signup', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -10,6 +10,7 @@ async function signUpUser(credentials) {
         body: JSON.stringify(credentials)
     })
         .then(data => data.json())
+        .catch(error => console.log(error))
 }
 
 function Register({ setToken }) {
