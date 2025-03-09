@@ -114,8 +114,8 @@ const Play = () => {
 
             {stage === "confirm" && (
                 <div className="overlay confirm-screen">
-                    <video autoPlay loop muted className="background-video">
-                        <source src="/assets/nyan-cat.mp4" type="video/mp4" />
+                    <video autoPlay loop className="background-video">
+                        <source src="/assets/teto.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                 </video>
                     <h2>Are you sure?</h2>

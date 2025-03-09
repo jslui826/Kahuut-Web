@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import '../css/Start.css' // Make sure this file exists
-import logo from '../assets/crymoji.png'
+import logo from '/assets/crymoji.png'
 
 const Start = () => {
     const navigate = useNavigate();
