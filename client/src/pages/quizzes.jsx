@@ -95,7 +95,7 @@ const QuizPage = () => {
                     <li>Progress</li>
                     <li>Settings</li>
                     <li onClick={() => setShowMusicPopup(true)}>🎵 Music</li>
-                    <li>Log Out</li>
+                    <li onClick={() => {localStorage.clear(); navigate("/login"); window.location.reload() }}>Log Out</li>
                 </ul>
             </div>
 
