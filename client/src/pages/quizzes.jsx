@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/quizzes.css";
 
 const defaultMusic = "/assets/ZeldaMain.mp3";
@@ -10,38 +11,40 @@ const musicFiles = [
     "ZeldaMain.mp3"
 ];
 
+const sampleQuiz = {
+    quiz_id: "sample",
+    title: "Sample Quiz",
+    description: "Test your knowledge with this sample quiz!",
+};
+
 const QuizPage = () => {
-    const [quizzes, setQuizzes] = useState([]); // Store quizzes from API
+    const [quizzes, setQuizzes] = useState([sampleQuiz]);
     const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
+    const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
     const audioRef = useRef(null);
+    const navigate = useNavigate();
 
-    // Fetch quizzes from backend
     const fetchQuizzes = async (query = "") => {
         try {
             const url = query
                 ? `http://localhost:4000/quizzes/search?query=${query}`
                 : "http://localhost:4000/quizzes";
-
             const response = await fetch(url);
             const data = await response.json();
-            setQuizzes(data);
-
-            // Reset selection if new data comes in
+            setQuizzes([sampleQuiz, ...data]);
             if (data.length > 0) setSelectedQuizIndex(0);
         } catch (error) {
             console.error("Error fetching quizzes:", error);
         }
     };
 
-    // Load quizzes on mount
     useEffect(() => {
         fetchQuizzes();
     }, []);
 
-    // Search functionality
     const handleSearchChange = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
@@ -52,7 +55,6 @@ const QuizPage = () => {
         }
     };
 
-    // Handle quiz navigation
     const handleLeft = () => {
         setSelectedQuizIndex((prev) => (prev > 0 ? prev - 1 : quizzes.length - 1));
     };
@@ -99,7 +101,6 @@ const QuizPage = () => {
 
             <div className="main-content">
                 <h1>Select Your Quiz</h1>
-
                 <div className="search-bar">
                     <input
                         type="text"
@@ -108,16 +109,15 @@ const QuizPage = () => {
                         onChange={handleSearchChange}
                     />
                 </div>
-
                 <div className="quiz-carousel">
                     <button className="nav-button left" onClick={handleLeft}>⬅</button>
-
                     <div className="quiz-list">
                         {quizzes.length > 0 ? (
                             quizzes.map((quiz, index) => (
                                 <div
                                     key={quiz.quiz_id}
                                     className={`quiz-card ${index === selectedQuizIndex ? "selected" : ""}`}
+                                    onClick={() => setSelectedQuiz(quiz)}
                                 >
                                     <h3>{quiz.description}</h3>
                                 </div>
@@ -126,10 +126,19 @@ const QuizPage = () => {
                             <p>No quizzes found.</p>
                         )}
                     </div>
-
                     <button className="nav-button right" onClick={handleRight}>➡</button>
                 </div>
             </div>
+            {selectedQuiz && (
+                <div className="quiz-popup">
+                    <div className="popup-content">
+                        <h2>{selectedQuiz.title}</h2>
+                        <p>{selectedQuiz.description}</p>
+                        <button onClick={() => navigate(`/play`)}>Start</button>
+                        <button onClick={() => setSelectedQuiz(null)}>Close</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

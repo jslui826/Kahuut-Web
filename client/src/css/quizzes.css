@@ -236,3 +236,76 @@ h1 {
 .popup-content button:hover {
     background-color: #0056b3;
 }
+
+.quiz-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    max-width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+}
+
+.popup-left {
+    flex: 1;
+    text-align: center;
+}
+
+.popup-left img {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+.popup-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popup-right button {
+    margin-top: 10px;
+}
+.quiz-card {
+    background-color: #f0f0f0; 
+    color: #2b0e0e; 
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.quiz-popup {
+    background: white;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.quiz-popup h2 {
+    color: #222;
+}
+
+.quiz-popup p {
+    color: #444;
+}
+
+.quiz-popup strong {
+    color: #555;
+}

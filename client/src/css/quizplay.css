@@ -1,0 +1,126 @@
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #4b59f7; 
+    color: white;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+.question-section {
+    width: 80%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.question {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 80%;
+    max-width: 600px;
+}
+
+.option-button {
+    padding: 30px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: white;
+    text-transform: uppercase;
+}
+
+.option-button:nth-child(1) { background-color: #ff595e; } 
+.option-button:nth-child(2) { background-color: #ffca3a; } 
+.option-button:nth-child(3) { background-color: #8ac926; } 
+.option-button:nth-child(4) { background-color: #1982c4; } 
+
+.option-button:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+.selected {
+    background-color: white !important;
+    color: black !important;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.confirm-screen {
+    background: #222;
+}
+
+.result-screen.correct {
+    background: #28a745; 
+}
+
+.result-screen.wrong {
+    background: #dc3545; 
+}
+
+.next-screen {
+    background: #ffca3a; 
+}
+
+.final-screen {
+    background: #4b59f7; 
+    color: white;
+    text-align: center;
+}
+
+.final-screen h2 {
+    font-size: 3rem;
+}
+
+.final-screen p {
+    font-size: 2rem;
+    margin: 10px 0;
+}
+.restart-button, .quizzes-button {
+    padding: 15px 30px;
+    font-size: 1.5rem;
+    background: #ffca3a;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin: 10px;
+    transition: 0.3s;
+}
+
+.restart-button:hover, .quizzes-button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.quizzes-button {
+    background: #28a745; 
+}
