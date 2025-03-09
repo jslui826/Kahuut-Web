@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: #4b59f7; 
+    background: #292c4d; 
     color: white;
     text-align: center;
     font-family: 'Arial', sans-serif;
@@ -45,10 +45,10 @@
     text-transform: uppercase;
 }
 
-.option-button:nth-child(1) { background-color: #ff595e; } 
-.option-button:nth-child(2) { background-color: #ffca3a; } 
-.option-button:nth-child(3) { background-color: #8ac926; } 
-.option-button:nth-child(4) { background-color: #1982c4; } 
+.option-button:nth-child(1) { background-color: #c40007; } 
+.option-button:nth-child(2) { background-color: #e4c163; } 
+.option-button:nth-child(3) { background-color: #345301; } 
+.option-button:nth-child(4) { background-color: #098cde; } 
 
 .option-button:hover {
     transform: scale(1.1);
@@ -92,7 +92,7 @@
 }
 
 .final-screen {
-    background: #4b59f7; 
+    background: #181e56; 
     color: white;
     text-align: center;
 }
@@ -123,4 +123,28 @@
 
 .quizzes-button {
     background: #28a745; 
+}
+.background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+.confirm-screen {
+    background: rgba(0, 0, 0, 0.6); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: white;
+    text-align: center;
 }

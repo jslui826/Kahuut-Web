@@ -114,10 +114,16 @@ const Play = () => {
 
             {stage === "confirm" && (
                 <div className="overlay confirm-screen">
+                    <video autoPlay loop muted className="background-video">
+                        <source src="/assets/nyan-cat.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                </video>
                     <h2>Are you sure?</h2>
                     <p>{confirmTimeLeft} seconds</p>
                 </div>
             )}
+
+            
 
             {stage === "result" && (
                 <div className={`overlay result-screen ${selectedOption === question.correctAnswer ? "correct" : "wrong"}`}>
