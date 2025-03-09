@@ -61,25 +61,23 @@ const Play = () => {
 
     const handleOptionClick = (option) => {
         setSelectedOption(option);
-        setStage("confirm");
-        setConfirmTimeLeft(7);
-    };
-
-    const goToNextQuestion = () => {
-        if (selectedOption === question.correctAnswer) {
+        
+        // Check if answer is correct immediately
+        if (option === question.correctAnswer) {
             setCorrectCount((prev) => prev + 1);
         } else {
             setWrongCount((prev) => prev + 1);
         }
 
-        if (currentQuestionIndex >= quizData.length - 1) {
-            setStage("final");
-        } else {
-            setCurrentQuestionIndex(currentQuestionIndex + 1);
-            setSelectedOption(null);
-            setTimeLeft(20);
-            setStage("question");
-        }
+        setStage("confirm");
+        setConfirmTimeLeft(7);
+    };
+
+    const goToNextQuestion = () => {
+        setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+        setSelectedOption(null);
+        setTimeLeft(20);
+        setStage("question");
     };
 
     const percentageScore = ((correctCount / quizData.length) * 100).toFixed(2);
@@ -117,13 +115,11 @@ const Play = () => {
                     <video autoPlay loop className="background-video">
                         <source src="/assets/teto.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
-                </video>
+                    </video>
                     <h2>Are you sure?</h2>
                     <p>{confirmTimeLeft} seconds</p>
                 </div>
             )}
-
-            
 
             {stage === "result" && (
                 <div className={`overlay result-screen ${selectedOption === question.correctAnswer ? "correct" : "wrong"}`}>
