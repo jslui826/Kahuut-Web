@@ -23,7 +23,12 @@ const QuizPage = () => {
     const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [showMusicPopup, setShowMusicPopup] = useState(false);
+    const [showMakeQuizPage, setShowMakeQuizPage] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
+    const [pdfFile, setPdfFile] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+    const [mp3File, setMp3File] = useState(null);
+
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
@@ -63,6 +68,57 @@ const QuizPage = () => {
         setSelectedQuizIndex((prev) => (prev < quizzes.length - 1 ? prev + 1 : 0));
     };
 
+    const handleFileUpload = async () => {
+        if (!pdfFile) {
+            alert("Please upload a PDF file for the quiz.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("pdf", pdfFile);
+        if (imageFile) formData.append("image", imageFile);
+        if (mp3File) formData.append("mp3", mp3File);
+
+        try {
+            const response = await fetch("http://localhost:4000/quizzes/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert("Quiz uploaded successfully!");
+                setShowMakeQuizPage(false);
+                fetchQuizzes(); // Refresh quiz list
+            } else {
+                alert("Failed to upload quiz.");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Error uploading quiz.");
+        }
+    };
+
+    if (showMakeQuizPage) {
+        return (
+            <div className="quiz-fullscreen">
+                <div className="quiz-form">
+                    <h2>Create a New Quiz</h2>
+                    <label>Upload PDF File (Required):</label>
+                    <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
+
+                    <label>Upload Image (Optional):</label>
+                    <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+
+                    <label>Upload MP3 (Optional):</label>
+                    <input type="file" accept="audio/mp3" onChange={(e) => setMp3File(e.target.files[0])} />
+
+                    <button className="submit-btn" onClick={handleFileUpload}>Submit</button>
+                    <button className="close-btn" onClick={() => setShowMakeQuizPage(false)}>Go Back</button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="quiz-page">
             <audio ref={audioRef} src={currentMusic} autoPlay loop>
@@ -94,8 +150,9 @@ const QuizPage = () => {
                     <li>Quizzes</li>
                     <li>Progress</li>
                     <li>Settings</li>
-                    <li onClick={() => setShowMusicPopup(true)}>🎵 Music</li>
-                    <li onClick={() => {localStorage.clear(); navigate("/login"); window.location.reload() }}>Log Out</li>
+                    <li onClick={() => setShowMusicPopup(true)}>Music</li>
+                    <li onClick={() => setShowMakeQuizPage(true)}>Make Quiz</li>
+                    <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
                 </ul>
             </div>
 
@@ -129,6 +186,7 @@ const QuizPage = () => {
                     <button className="nav-button right" onClick={handleRight}>➡</button>
                 </div>
             </div>
+
             {selectedQuiz && (
                 <div className="quiz-popup">
                     <div className="popup-content">
