@@ -10,57 +10,44 @@ app.use(express.json())
 
 //ROUTES
 
-//TODO:
-
 // Posts a quiz
 app.post("/quizzes", async (req, res) => {
   try {
-    const { description, asset, questions } = req.body; // Asset includes {type, mongo_asset_id}
+    const { creator_id, title, description, image, music, questions } = req.body;
 
     // Insert quiz
     const quizResult = await pool.query(
-      "INSERT INTO quizzes (description) VALUES ($1) RETURNING *",
-      [description]
+      "INSERT INTO quizzes (creator_id, title, description, image, music) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [creator_id, title, description, image, music]
     );
 
     const quizId = quizResult.rows[0].quiz_id;
 
-    // Insert asset if provided
-    let assetId = null;
-    if (asset) {
-      const assetResult = await pool.query(
-        "INSERT INTO quizzes_assets (quiz_id, asset_type, mongo_asset_id) VALUES ($1, $2, $3) RETURNING id",
-        [quizId, asset.asset_type, asset.mongo_asset_id]
+    // Insert questions and answers
+    for (const q of questions) {
+      const questionResult = await pool.query(
+        "INSERT INTO questions (quiz_id, question_text) VALUES ($1, $2) RETURNING question_id",
+        [quizId, q.question_text]
       );
-      assetId = assetResult.rows[0].id;
 
-      // Update quiz with asset_id
-      await pool.query("UPDATE quizzes SET asset_id = $1 WHERE quiz_id = $2", [
-        assetId,
-        quizId,
-      ]);
+      const questionId = questionResult.rows[0].question_id;
+
+      // Insert answers
+      for (const answer of q.answers) {
+        await pool.query(
+          "INSERT INTO answers (question_id, answer_text, is_correct) VALUES ($1, $2, $3)",
+          [questionId, answer.text, answer.is_correct]
+        );
+      }
     }
 
-    // Insert questions
-    const questionPromises = questions.map((q) =>
-      pool.query(
-        "INSERT INTO questions (quiz_id, question_text, answer) VALUES ($1, $2, $3)",
-        [quizId, q.question_text, q.answer]
-      )
-    );
-
-    await Promise.all(questionPromises);
-
-    res.json({
-      message: "Quiz created successfully",
-      quiz: { quiz_id: quizId, description, asset_id: assetId },
-    });
+    res.json({ message: "Quiz created successfully", quiz: quizResult.rows[0] });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 });
-  
+
 // Gets quizzes from db
 app.get("/quizzes", async (req, res) => {
   try {
@@ -68,24 +55,23 @@ app.get("/quizzes", async (req, res) => {
 
     const quizzesWithDetails = await Promise.all(
       quizzes.rows.map(async (quiz) => {
-        // Get asset
-        const assetResult = await pool.query(
-          "SELECT * FROM quizzes_assets WHERE quiz_id = $1",
-          [quiz.quiz_id]
-        );
-        const asset = assetResult.rows.length ? assetResult.rows[0] : null;
-
-        // Get questions
+        // Get questions and answers
         const questionsResult = await pool.query(
-          "SELECT * FROM questions WHERE quiz_id = $1 ORDER BY created_at",
+          "SELECT * FROM questions WHERE quiz_id = $1",
           [quiz.quiz_id]
         );
 
-        return {
-          ...quiz,
-          asset,
-          questions: questionsResult.rows,
-        };
+        const questionsWithAnswers = await Promise.all(
+          questionsResult.rows.map(async (q) => {
+            const answersResult = await pool.query(
+              "SELECT * FROM answers WHERE question_id = $1",
+              [q.question_id]
+            );
+            return { ...q, answers: answersResult.rows };
+          })
+        );
+
+        return { ...quiz, questions: questionsWithAnswers };
       })
     );
 
@@ -105,31 +91,17 @@ app.get("/quizzes/search", async (req, res) => {
     }
 
     const quizzes = await pool.query(
-      "SELECT * FROM quizzes WHERE description ILIKE $1",
+      "SELECT * FROM quizzes WHERE title ILIKE $1 OR description ILIKE $1",
       [`%${searchQuery}%`]
     );
 
-    const quizzesWithDetails = await Promise.all(
-      quizzes.rows.map(async (quiz) => {
-        const assetResult = await pool.query(
-          "SELECT * FROM quizzes_assets WHERE quiz_id = $1",
-          [quiz.quiz_id]
-        );
-        const asset = assetResult.rows.length ? assetResult.rows[0] : null;
-
-        return {
-          ...quiz,
-          asset,
-        };
-      })
-    );
-
-    res.json(quizzesWithDetails);
+    res.json(quizzes.rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 });
+
 
 
 //upload images per question

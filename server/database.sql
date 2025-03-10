@@ -1,26 +1,35 @@
-CREATE TYPE asset_type_enum AS ENUM ('image', 'audio');
-
-CREATE TABLE quizzes_assets (
-    id SERIAL PRIMARY KEY,
-    quiz_id INTEGER,
-    asset_type asset_type_enum NOT NULL,
-    mongo_asset_id TEXT NOT NULL
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
 );
 
 CREATE TABLE quizzes (
     quiz_id SERIAL PRIMARY KEY,
-    description VARCHAR(255),
-    asset_id INTEGER UNIQUE REFERENCES quizzes_assets(id)
+    title TEXT NOT NULL,
+    description TEXT,
+    creator_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    image BYTEA,
+    music BYTEA
 );
 
-ALTER TABLE quizzes_assets ADD CONSTRAINT fk_quiz FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE;
-
 CREATE TABLE questions (
-    id SERIAL PRIMARY KEY,
-    quiz_id INTEGER REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
-    question_text TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    answer TEXT NOT NULL
+    question_id SERIAL PRIMARY KEY,
+    quiz_id INT NOT NULL REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
+    question_text TEXT NOT NULL
+);
+
+CREATE TABLE answers (
+    answer_id SERIAL PRIMARY KEY,
+    question_id INT NOT NULL REFERENCES questions(question_id) ON DELETE CASCADE,
+    answer_text TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL
+);
+
+CREATE TABLE favorites (
+    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    quiz_id INT NOT NULL REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, quiz_id)
 );
 
 /*
