@@ -1,8 +1,10 @@
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
+
 
 CREATE TABLE quizzes (
     quiz_id SERIAL PRIMARY KEY,

@@ -1,17 +1,16 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 
-async function signUpUser(credentials) {
-    return fetch('http://localhost:5050/signup', {
+async function registerUser(credentials) {
+    return fetch('http://localhost:4000/signup', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
     })
-        .then(data => data.json())
-        .catch(error => console.log(error))
+    .then(data => data.json())
+    .catch(error => console.log(error));
 }
+
 
 function Register({ setToken }) {
     const [username, setUserName] = useState();

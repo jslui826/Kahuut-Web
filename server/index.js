@@ -2,13 +2,78 @@ const express = require('express')
 const cors = require('cors')
 const port = 4000
 const app = express()
-const pool = require('./db')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+const { Pool } = require('pg');
+
+const pool = new Pool({
+    connectionString: "postgres://postgres:DXaLqzNjklFmJkfcQAvDXVvqSCIPfaQo@gondola.proxy.rlwy.net:38869/railway"
+});
+
+module.exports = pool;
 
 //middleware
 app.use(cors())
 app.use(express.json())
 
 //ROUTES
+// Signup endpoint
+app.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email.endsWith("@g.ucla.edu")) {
+      return res.status(400).json({ error: "Email must be a g.ucla.edu address." });
+  }
+
+  try {
+      const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      if (userCheck.rows.length > 0) {
+          return res.status(409).json({ error: 'Email already exists' });
+      }
+
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = await pool.query(
+          'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING user_id, email',
+          [email, hashedPassword]
+      );
+
+      const token = jwt.sign({ userId: newUser.rows[0].user_id }, 'your-secret-key', { expiresIn: '1h' });
+
+      res.status(201).json({ token });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+  }
+});
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+      const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (userResult.rows.length === 0) {
+          return res.status(401).json({ error: 'User not found' });
+      }
+
+      const user = userResult.rows[0];
+      const bcrypt = require('bcrypt');
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+          return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const token = require('jsonwebtoken').sign({ userId: user.user_id }, 'your-secret-key', { expiresIn: '1h' });
+
+      res.json({ token });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+  }
+});
 
 // Posts a quiz
 app.post("/quizzes", async (req, res) => {
