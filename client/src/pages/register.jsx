@@ -50,7 +50,7 @@ async function registerUser(credentials) {
                         <input type="password" placeholder="Enter Password" className="w-full input input-bordered" onChange={e => setPassword(e.target.value)} />
                     </div>
                     <a href="../login" class="text-xs text-gray-600 hover:underline hover:text-blue-600">Already have an account?</a>
-                    <div>t
+                    <div>
                         <button class="btn btn-block btn-neutral">Sign Up</button>
                     </div>
                 </form>

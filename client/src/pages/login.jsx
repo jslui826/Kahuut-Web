@@ -6,20 +6,26 @@ async function loginUser(credentials) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
-    }).then(data => data.json());
+    }).then(res => res.json())
 }
 
 function Login({ setToken }) {
-    const [username, setUserName] = useState();
-    const [password, setPassword] = useState();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('')
 
     const handleSubmit = async e => {
         e.preventDefault();
-        const token = await loginUser({
-            username,
-            password
-        });
-        setToken(token);
+        const response = await loginUser({ email, password })
+
+        if (response.token) {
+            setToken(response.token)
+            setError('')
+        } else if (response.error) {
+            setError(response.error)
+        } else {
+            setError('Unknown error occurred.')
+        }
     }
 
     return(
@@ -33,7 +39,7 @@ function Login({ setToken }) {
                         <label className="label">
                             <span className="text-base label-text">Email</span>
                         </label>
-                        <input type="text" placeholder="Email Address" className="w-full input input-bordered" onChange={e => setUserName(e.target.value)} />
+                        <input type="text" placeholder="Email Address" className="w-full input input-bordered" onChange={e => setEmail(e.target.value)} />
                     </div>
                     <div>
                         <label className="label">
