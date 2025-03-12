@@ -290,3 +290,20 @@ module.exports = app;
 app.listen(port, () => {
     console.log("server has started on port", port)
 })
+
+// Fetch all quizzes created by the current user
+app.get("/my_quizzes", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.person_id; // Extract user ID from authenticated request
+
+    const userQuizzes = await pool.query(
+      "SELECT * FROM quizzes WHERE creator_id = $1",
+      [userId]
+    );
+
+    res.json(userQuizzes.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
