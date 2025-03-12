@@ -25,6 +25,10 @@ const MakeQuiz = () => {
         formData.append("pdf", pdfFile);
         if (imageFile) formData.append("image", imageFile);
         if (mp3File) formData.append("mp3", mp3File);
+        console.log("📤 FormData before sending:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+    }
 
         try {
             const response = await fetch("http://localhost:4000/quizzes/upload", {
@@ -34,6 +38,8 @@ const MakeQuiz = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            const result = await response.json();
+            console.log("Server Response:", result);
 
             if (response.ok) {
                 alert("Quiz uploaded successfully!");
@@ -42,6 +48,7 @@ const MakeQuiz = () => {
                 alert("Failed to upload quiz.");
             }
         } catch (error) {
+            console.error("Error uploading quiz:", error);
             alert("Error uploading quiz.");
         } finally {
             setIsUploading(false);

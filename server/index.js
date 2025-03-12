@@ -1,30 +1,30 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-const { exec } = require('child_process');
-const fileUpload = require('express-fileupload');
-const pool = require('./db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const express = require('express')
+const cors = require('cors')
+const path = require('path')
+const fs = require('fs')
+const { exec } = require('child_process')
+const fileUpload = require('express-fileupload')
+const pool = require('./db')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
-require('dotenv').config();
+require('dotenv').config()
 
-const app = express();
-const port = process.env.PORT || 4000;
+const app = express()
+const port = process.env.PORT || 4000
 
-// Middleware setup
-app.use(cors());
-app.use(express.json());
-app.use(fileUpload());
+// Middleware setup VERY IMPORTANT AND ERROR PRONE
 app.use(cors({
   origin: "http://localhost:3000", // adjust as needed
-}));
+}))
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
   useTempFiles: true,
   tempFileDir: '/tmp/'
-}));
+}))
+app.use(express.json())
+
+// Authenticate the session token created during registration or login
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
@@ -40,65 +40,136 @@ function authenticateToken(req, res, next) {
 module.exports = pool
 
 //ROUTES
+
+
+// Endpoint: Upload PDF and generate quiz
+app.post('/quizzes/upload', authenticateToken, async (req, res) => {
+  const { title } = req.body
+  const pdfFile = req.files?.pdf
+  const imageFile = req.files?.image
+  const audioFile = req.files?.mp3
+  console.log("📩 Incoming request...")
+  console.log("📢 Headers:", req.headers)
+  
+  req.on("data", chunk => {
+      console.log("📦 Received chunk:", chunk.length, "bytes")
+  })
+
+  req.on("end", () => {
+      console.log("✅ Request fully received!")
+  })
+
+  console.log("📂 Files:", req.files)
+  console.log("📜 Body:", req.body)
+
+  if (!req.files || !req.files.pdf) {
+      return res.status(400).json({ error: "No files were uploaded." })
+  }
+
+  const uploadsDir = path.join(__dirname, 'uploads')
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir)
+
+  const pdfPath = path.join(uploadsDir, pdfFile.name)
+  await pdfFile.mv(pdfPath)
+
+  const imagePath = imageFile ? path.join(uploadsDir, imageFile.name) : null
+  const audioPath = audioFile ? path.join(uploadsDir, audioFile.name) : null
+
+  if (imageFile) await imageFile.mv(imagePath)
+  if (audioFile) await audioFile.mv(audioPath)
+
+  const creatorEmail = req.user.email
+
+  // Call pdf_processing.py
+  console.log("Executing pdf processing python subprocess")
+  exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(stderr);
+      return res.status(500).json({ error: 'PDF processing failed.' });
+    }
+
+    const aiOutputPath = path.join(uploadsDir, 'ai_output.txt')
+    fs.writeFileSync(aiOutputPath, stdout)
+
+    // Call parsing_output.py
+    console.log("Executing parsing of llm output")
+    exec(`python3 python_subprocesses/parsing_output.py "${aiOutputPath}" "${creatorEmail}" "${title}" "${imagePath}" "${audioPath}"`, (parseErr, parseStdout, parseStderr) => {
+    if (parseErr) {
+        console.error("❌ Parsing Output Error:", parseStderr);
+        return res.status(500).json({ error: 'Parsing and storing failed.', details: parseStderr });
+    }
+
+    console.log("✅ Parsing output completed successfully!");
+    res.status(201).json({ message: "Quiz successfully generated and stored!" });
+
+    fs.unlinkSync(pdfPath);
+    fs.unlinkSync(aiOutputPath);
+    if (imagePath) fs.unlinkSync(imagePath);
+    if (audioPath) fs.unlinkSync(audioPath);
+});
+
+  })
+})
+
 // Signup endpoint
 app.post('/signup', async (req, res) => {
-  const { email, password, team } = req.body; // team is R, Y, or B
+  const { email, password, team } = req.body // team is R, Y, or B
 
   if (!email || !password || !team) {
-    return res.status(400).json({ error: "Email, password, and team are required." });
+    return res.status(400).json({ error: "Email, password, and team are required." })
   }
 
   if (!['R', 'Y', 'B'].includes(team)) {
-    return res.status(400).json({ error: "Invalid team selection." });
+    return res.status(400).json({ error: "Invalid team selection." })
   }
 
-  const client = await pool.connect(); // Get a client from the pool
+  const client = await pool.connect() // Get a client from the pool
 
   try {
-    await client.query('BEGIN'); // Start transaction
+    await client.query('BEGIN') // Start transaction
 
     const existingUser = await client.query(
       'SELECT email FROM persons WHERE email = $1', [email]
-    );
+    )
 
     if (existingUser.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return res.status(409).json({ error: "Email already exists." });
+      await client.query('ROLLBACK')
+      return res.status(409).json({ error: "Email already exists." })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     const newUser = await client.query(
       'INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id',
       [email, hashedPassword]
-    );
+    )
 
-    const person_id = newUser.rows[0].person_id;
+    const person_id = newUser.rows[0].person_id
 
     await client.query(
       'INSERT INTO profile (person_id, team) VALUES ($1, $2)',
       [person_id, team]
-    );
+    )
 
-    await client.query('COMMIT'); // Commit transaction
+    await client.query('COMMIT') // Commit transaction
 
     const token = jwt.sign(
       { person_id, email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
-    );
+    )
 
-    res.status(201).json({ token });
-    console.log("User and Profile created");
+    res.status(201).json({ token })
+    console.log("User and Profile created")
 
   } catch (err) {
-    await client.query('ROLLBACK'); // Rollback transaction on error
-    console.error(err);
-    res.status(500).json({ error: "Internal server error." });
+    await client.query('ROLLBACK') // Rollback transaction on error
+    console.error(err)
+    res.status(500).json({ error: "Internal server error." })
   } finally {
-    client.release(); // Release client back to the pool
+    client.release() // Release client back to the pool
   }
-});
+})
 
 
 // Login endpoint (corrected)
@@ -137,59 +208,6 @@ app.post('/login', async (req, res) => {
 })
 
 
-// Endpoint: Upload PDF and generate quiz
-app.post('/quizzes/upload', authenticateToken, async (req, res) => {
-  const { title } = req.body;
-  const pdfFile = req.files?.pdf;
-  const imageFile = req.files?.image;
-  const audioFile = req.files?.mp3;
-
-  if (!pdfFile || !title) {
-    return res.status(400).json({ error: "Quiz title and PDF are required." });
-  }
-
-  const uploadsDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
-
-  const pdfPath = path.join(uploadsDir, pdfFile.name);
-  await pdfFile.mv(pdfPath);
-
-  const imagePath = imageFile ? path.join(uploadsDir, imageFile.name) : null;
-  const audioPath = audioFile ? path.join(uploadsDir, audioFile.name) : null;
-
-  if (imageFile) await imageFile.mv(imagePath);
-  if (audioFile) await audioFile.mv(audioPath);
-
-  const creatorEmail = req.user.email;
-
-  // Call pdf_processing.py
-  exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(stderr);
-      return res.status(500).send('PDF processing failed.');
-    }
-
-    const aiOutputPath = path.join(uploadsDir, 'ai_output.txt');
-    fs.writeFileSync(aiOutputPath, stdout);
-
-    // Call parsing_output.py
-    exec(`python3 python_subprocesses/parsing_output.py "${aiOutputPath}" "${creatorEmail}" "${title}" "${imagePath}" "${audioPath}"`, (parseErr, parseStdout, parseStderr) => {
-      if (parseErr) {
-        console.error(parseStderr);
-        return res.status(500).send('Parsing and storing failed.');
-      }
-
-      res.status(201).json({ message: "Quiz successfully generated and stored!" });
-
-      fs.unlinkSync(pdfPath);
-      fs.unlinkSync(aiOutputPath);
-      if (imagePath) fs.unlinkSync(imagePath);
-      if (audioPath) fs.unlinkSync(audioPath);
-    });
-  });
-});
-
-
 // Get all quizzes with questions and answers
 app.get("/quizzes", async (req, res) => {
   try {
@@ -198,7 +216,7 @@ app.get("/quizzes", async (req, res) => {
                  encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
           FROM quizzes q
           JOIN persons p ON q.creator_id = p.person_id
-      `);
+      `)
 
       const quizzesWithDetails = await Promise.all(
           quizzes.rows.map(async (quiz) => {
@@ -206,28 +224,28 @@ app.get("/quizzes", async (req, res) => {
                   SELECT question, answer1, answer2, answer3, answer4
                   FROM qa
                   WHERE quiz_id = $1
-              `, [quiz.quiz_id]);
+              `, [quiz.quiz_id])
 
               return { 
                   ...quiz, 
                   questions: questionsResult.rows
-              };
+              }
           })
-      );
+      )
 
-      res.json(quizzesWithDetails);
+      res.json(quizzesWithDetails)
   } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      console.error(err.message)
+      res.status(500).send("Server Error")
   }
-});
+})
 
 // Search bar feature (searching by quiz title)
 app.get("/quizzes/search", async (req, res) => {
   try {
-      const searchQuery = req.query.query;
+      const searchQuery = req.query.query
       if (!searchQuery) {
-          return res.status(400).json({ error: "Search query is required" });
+          return res.status(400).json({ error: "Search query is required" })
       }
 
       const quizzes = await pool.query(`
@@ -236,14 +254,14 @@ app.get("/quizzes/search", async (req, res) => {
           FROM quizzes q
           JOIN persons p ON q.creator_id = p.person_id
           WHERE q.title ILIKE $1
-      `, [`%${searchQuery}%`]);
+      `, [`%${searchQuery}%`])
 
-      res.json(quizzes.rows);
+      res.json(quizzes.rows)
   } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
+      console.error(err.message)
+      res.status(500).send("Server Error")
   }
-});
+})
 
 //Leaderboard
 app.get("/api/leaderboard/top10", async (req, res) => {
@@ -258,8 +276,8 @@ app.get("/api/leaderboard/top10", async (req, res) => {
           FROM profile p
           JOIN persons pe ON p.person_id = pe.person_id
           ORDER BY p.score DESC
-          LIMIT 10;`
-      );
+          LIMIT 10`
+      )
 
 
       const players = result.rows.map(player => ({
@@ -267,19 +285,19 @@ app.get("/api/leaderboard/top10", async (req, res) => {
           name: player.username,
           team: player.team,
           score: player.score,
-          img: player.pfp ? `data:image/png;base64,${player.pfp}` : "/assets/default_pfp.jpg" // need default here lol
-      }));
+          img: player.pfp ? `data:image/pngbase64,${player.pfp}` : "/assets/default_pfp.jpg" // need default here lol
+      }))
 
 
-      res.json(players);
+      res.json(players)
   } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error fetching leaderboard:", error)
+      res.status(500).json({ error: "Internal Server Error" })
   }
-});
+})
 
 
-module.exports = app;
+module.exports = app
 
 //upload images per question
 
@@ -294,19 +312,19 @@ app.listen(port, () => {
 // Fetch all quizzes created by the current user
 app.get("/my_quizzes", authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.person_id; // Extract user ID from authenticated request
+    const userId = req.user.person_id // Extract user ID from authenticated request
 
     const userQuizzes = await pool.query(
       "SELECT * FROM quizzes WHERE creator_id = $1",
       [userId]
-    );
+    )
 
-    res.json(userQuizzes.rows);
+    res.json(userQuizzes.rows)
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error(err.message)
+    res.status(500).send("Server Error")
   }
-});
+})
 
 // Upload Profile Picture
 app.post("/uploadPfp", authenticateToken, async (req, res) => {
