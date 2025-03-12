@@ -27,43 +27,53 @@ app.use(express.json())
 //ROUTES
 // Signup endpoint
 app.post('/signup', async (req, res) => {
-  const { email, password } = req.body
+  const { email, password, team } = req.body; // team is R, Y, or B
 
-  if (!email.endsWith("@g.ucla.edu")) {
-    return res.status(400).json({ error: "Email must be a g.ucla.edu address." })
+  if (!email || !password || !team) {
+    return res.status(400).json({ error: "Email, password, and team are required." });
+  }
+
+  if (!['R', 'Y', 'G'].includes(team)) {
+    return res.status(400).json({ error: "Invalid team selection." })
   }
 
   try {
-    // Check for existing email in persons table
     const existingUser = await pool.query(
-      "SELECT person_id FROM persons WHERE email = $1",
-      [email]
-    )
+      'SELECT email FROM persons WHERE email = $1', [email]
+    );
 
     if (existingUser.rows.length > 0) {
-      return res.status(409).json({ error: "Email already exists." })
+      return res.status(409).json({ error: "Email already exists." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      "INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id, email",
+      'INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id',
       [email, hashedPassword]
-    )
+    );
+
+    const person_id = newUser.rows[0].person_id;
+
+    // Insert default profile for user
+    await pool.query(
+      'INSERT INTO profile (person_id, team) VALUES ($1, $2)',
+      [person_id, team]
+    );
 
     const token = jwt.sign(
-      { userId: newUser.rows[0].person_id, email: newUser.rows[0].email },
+      { person_id, email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
-    )
+    );
 
-    res.status(201).json({ token })
-    console.log("Added User")
+    res.status(201).json({ token });
+    console.log("User and Profile created");
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Internal server error." })
+    console.error(err);
+    res.status(500).json({ error: "Internal server error." });
   }
-})
+});
 
 // Login endpoint (corrected)
 app.post('/login', async (req, res) => {
@@ -102,50 +112,57 @@ app.post('/login', async (req, res) => {
 
 
 // Endpoint: Upload PDF and generate quiz
-app.post('/generate-quiz', authenticateToken, async (req, res) => {
-  if (!req.files || !req.files.pdf) {
-      return res.status(400).send('PDF file required.')
+app.post('/quizzes/upload', authenticateToken, async (req, res) => {
+  const { title } = req.body;
+  const pdfFile = req.files?.pdf;
+  const imageFile = req.files?.image;
+  const audioFile = req.files?.mp3;
+
+  if (!pdfFile || !title) {
+    return res.status(400).json({ error: "Quiz title and PDF are required." });
   }
 
-  const pdfFile = req.files.pdf
-  const userEmail = req.user.email
-  const quizTitle = req.body.title || "Untitled Quiz"
+  const uploadsDir = path.join(__dirname, 'uploads');
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-  // Save PDF temporarily
-  const uploadsDir = path.join(__dirname, 'uploads')
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir)
-  const pdfPath = path.join(uploadsDir, pdfFile.name)
+  const pdfPath = path.join(uploadsDir, pdfFile.name);
+  await pdfFile.mv(pdfPath);
 
-  await pdfFile.mv(pdfPath)
+  const imagePath = imageFile ? path.join(uploadsDir, imageFile.name) : null;
+  const audioPath = audioFile ? path.join(uploadsDir, audioFile.name) : null;
 
-  // Step 1: Call PDF processing script
-  const aiCmd = `python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`
-  exec(aiCmd, (error, stdout, stderr) => {
-      if (error) {
-          console.error(`PDF processing error: ${stderr}`)
-          return res.status(500).send('PDF processing failed.')
+  if (imageFile) await imageFile.mv(imagePath);
+  if (audioFile) await audioFile.mv(audioPath);
+
+  const creatorEmail = req.user.email;
+
+  // Call pdf_processing.py
+  exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(stderr);
+      return res.status(500).send('PDF processing failed.');
+    }
+
+    const aiOutputPath = path.join(uploadsDir, 'ai_output.txt');
+    fs.writeFileSync(aiOutputPath, stdout);
+
+    // Call parsing_output.py
+    exec(`python3 python_subprocesses/parsing_output.py "${aiOutputPath}" "${creatorEmail}" "${title}" "${imagePath}" "${audioPath}"`, (parseErr, parseStdout, parseStderr) => {
+      if (parseErr) {
+        console.error(parseStderr);
+        return res.status(500).send('Parsing and storing failed.');
       }
 
-      const aiOutputPath = path.join(uploadsDir, 'ai_output.txt')
-      fs.writeFileSync(aiOutputPath, stdout)
+      res.status(201).json({ message: "Quiz successfully generated and stored!" });
 
-      // Step 2: Parse AI Output and insert to PostgreSQL
-      const parseCmd = `python3 python_subprocesses/parsing_output.py "${aiOutputPath}" "${userEmail}" "${quizTitle}" .env`
-      exec(parseCommand, (parseErr, parseStdout, parseStderr) => {
-          if (parseErr) {
-              console.error(`Parsing error: ${parseStderr}`)
-              return res.status(500).send('Parsing and storing failed.')
-          }
+      fs.unlinkSync(pdfPath);
+      fs.unlinkSync(aiOutputPath);
+      if (imagePath) fs.unlinkSync(imagePath);
+      if (audioPath) fs.unlinkSync(audioPath);
+    });
+  });
+});
 
-          console.log(`Quiz stored successfully: ${parseStdout}`)
-          res.status(201).send({ message: "Quiz successfully generated and stored!" })
-
-          // Cleanup files
-          fs.unlinkSync(pdfPath)
-          fs.unlinkSync(aiOutputPath)
-      })
-  })
-})
 
 
 // Gets quizzes from db
