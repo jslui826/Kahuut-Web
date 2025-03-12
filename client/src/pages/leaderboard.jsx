@@ -22,7 +22,7 @@ function Leaderboard() {
    }, []);
    return (
        <div className="overflow-x-auto">
-           <h3>______________________________</h3>
+           <h1>______________________________</h1>
            <h1>Leaderboard</h1>
            <a href="../quizzes" className="text-l text-gray-600">Dashboard</a>
 
@@ -31,10 +31,10 @@ function Leaderboard() {
                {/* Table Head */}
                <thead>
                    <tr>
-                       <th><h2>Rank</h2></th>
-                       <th>Name</th>
-                       <th>Team</th>
-                       <th>Score</th>
+                       <th><h1>Rank</h1></th>
+                       <th><h1>Name</h1></th>
+                       <th><h1>Team</h1></th>
+                       <th><h1>Score</h1></th>
                    </tr>
                </thead>
 
@@ -43,19 +43,19 @@ function Leaderboard() {
                <tbody>
                    {players.map((player, index) => (
                        <tr key={player.id}>
-                           <th><h3>{index + 1}</h3></th>
+                           <th><h1>{index + 1}</h1></th>
                            <td>
                                <div className="flex items-center gap-3">
                                    <div className="avatar">
-                                       <div className="mask mask-squircle h-12 w-12">
+                                       <div className="mask mask-squircle h-24 w-24">
                                            <img src={player.img} alt="Avatar" />
                                        </div>
                                    </div>
-                                   <div className="font-bold">{player.name}</div>
+                                   <div className="font-bold"><h1>{player.name}</h1></div>
                                </div>
                            </td>
-                           <td>{player.team}</td>
-                           <td>{player.score}</td>
+                           <td><h1>{player.team}</h1></td>
+                           <td><h1>{player.score}</h1></td>
                        </tr>
                    ))}
                </tbody>
@@ -64,10 +64,10 @@ function Leaderboard() {
                {/* Table Footer */}
                <tfoot>
                    <tr>
-                       <th></th>
-                       <th>Name</th>
-                       <th>Team</th>
-                       <th>Score</th>
+                       <th><h1>Rank</h1></th>
+                       <th><h1>NameM</h1></th>
+                       <th><h1>Team</h1></th>
+                       <th><h1>Score</h1></th>
                    </tr>
                </tfoot>
            </table>
