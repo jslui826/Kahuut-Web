@@ -171,7 +171,7 @@ const QuizPage = () => {
                 <ul className="menu">
                     <li>Dashboard</li>
                     <li>Quizzes</li>
-                    <li>Progress</li>
+                    <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
                     <li>Settings</li>
                     <li onClick={() => setShowMusicPopup(true)}>Music</li>
                     <li onClick={() => setShowMakeQuizPage(true)}>Make Quiz</li>

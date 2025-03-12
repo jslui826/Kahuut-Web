@@ -1,0 +1,121 @@
+export const people = [{
+    id: 0,
+    name: 'A',
+    team: 'R',
+    score: 100,
+    img: 'https://img.daisyui.com/images/profile/demo/1@94.webp'
+}, {
+    id: 1,
+    name: 'B',
+    team: 'Y',
+    score: 90,
+    img: 'https://img.daisyui.com/images/profile/demo/2@94.webp'
+}, {
+    id: 2,
+    name: 'C',
+    team: 'B',
+    score: 80,
+    img: 'https://img.daisyui.com/images/profile/demo/3@94.webp'
+}, {
+    id: 3,
+    name: 'D',
+    team: 'R',
+    score: 70,
+    img: 'https://img.daisyui.com/images/profile/demo/4@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}, {
+    id: 4,
+    name: 'E',
+    team: 'Y',
+    score: 60,
+    img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
+}]
