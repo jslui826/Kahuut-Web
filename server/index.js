@@ -1,11 +1,30 @@
-const express = require('express')
-const cors = require('cors')
-const port = 4000
-const app = express()
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const env = ".env"
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const { exec } = require('child_process');
+const fileUpload = require('express-fileupload');
 const pool = require('./db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 4000;
+
+// Middleware setup
+app.use(cors());
+app.use(express.json());
+app.use(fileUpload());
+app.use(cors({
+  origin: "http://localhost:3000", // adjust as needed
+}));
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  useTempFiles: true,
+  tempFileDir: '/tmp/'
+}));
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
@@ -20,46 +39,48 @@ function authenticateToken(req, res, next) {
 
 module.exports = pool
 
-//middleware
-app.use(cors())
-app.use(express.json())
-
 //ROUTES
 // Signup endpoint
 app.post('/signup', async (req, res) => {
-  const { email, password, team } = req.body; // team is R, Y, or B
+  const { email, password, team } = req.body; // team is R, Y, or G
 
   if (!email || !password || !team) {
     return res.status(400).json({ error: "Email, password, and team are required." });
   }
 
   if (!['R', 'Y', 'G'].includes(team)) {
-    return res.status(400).json({ error: "Invalid team selection." })
+    return res.status(400).json({ error: "Invalid team selection." });
   }
 
+  const client = await pool.connect(); // Get a client from the pool
+
   try {
-    const existingUser = await pool.query(
+    await client.query('BEGIN'); // Start transaction
+
+    const existingUser = await client.query(
       'SELECT email FROM persons WHERE email = $1', [email]
     );
 
     if (existingUser.rows.length > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({ error: "Email already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await pool.query(
+    const newUser = await client.query(
       'INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id',
       [email, hashedPassword]
     );
 
     const person_id = newUser.rows[0].person_id;
 
-    // Insert default profile for user
-    await pool.query(
+    await client.query(
       'INSERT INTO profile (person_id, team) VALUES ($1, $2)',
       [person_id, team]
     );
+
+    await client.query('COMMIT'); // Commit transaction
 
     const token = jwt.sign(
       { person_id, email },
@@ -69,11 +90,16 @@ app.post('/signup', async (req, res) => {
 
     res.status(201).json({ token });
     console.log("User and Profile created");
+
   } catch (err) {
+    await client.query('ROLLBACK'); // Rollback transaction on error
     console.error(err);
     res.status(500).json({ error: "Internal server error." });
+  } finally {
+    client.release(); // Release client back to the pool
   }
 });
+
 
 // Login endpoint (corrected)
 app.post('/login', async (req, res) => {
