@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import useToken from './components/useToken';
 
+import Start from './pages/start';
 import Login from './pages/login';
 import Register from './pages/register';
 import Home from './pages/home';
+import Navbar from './components/navbar';
 import Quizzes from './pages/quizzes';
 import Play from "./pages/play";
 
@@ -12,6 +14,7 @@ function App() {
 
   return (
     <div style={{ textAlign: "center" }}>
+      {token && <Navbar />}
 
       <Routes>
         {token ? (
