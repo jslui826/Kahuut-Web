@@ -3,78 +3,84 @@ import { useNavigate } from "react-router-dom";
 
 
 function Leaderboard() {
-   const [players, setPlayers] = useState([]);
-   const navigate = useNavigate();
+    const [players, setPlayers] = useState([]);
+    const navigate = useNavigate();
 
-   useEffect(() => {
-       const fetchLeaderboard = async () => {
-           try {
-               const response = await fetch("http://localhost:4000/api/leaderboard/top10");
-               const data = await response.json();
-
-
-               const sortedPlayers = data.sort((a, b) => b.score - a.score);
-               setPlayers(sortedPlayers);
-           } catch (error) {
-               console.error("Error fetching leaderboard:", error);
-           }
-       };
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            try {
+                const response = await fetch("http://localhost:4000/api/leaderboard/top10");
+                const data = await response.json();
 
 
-       fetchLeaderboard();
-   }, []);
-   return (
-       <div className="overflow-x-auto">
-           <h1 style={{ marginTop: 50 }}>🏆Leaderboard🏆</h1>
-           <h1>___________________________________________________________________</h1>
-
-           <table className="table">
-               {/* Table Head */}
-               <thead>
-                   <tr>
-                       <th><h1>Rank</h1></th>
-                       <th><h1>Name</h1></th>
-                       <th><h1>Team</h1></th>
-                       <th><h1>Score</h1></th>
-                   </tr>
-               </thead>
+                const sortedPlayers = data.sort((a, b) => b.score - a.score);
+                setPlayers(sortedPlayers);
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+            }
+        };
 
 
-               {/* Table Body */}
-               <tbody>
-                   {players.map((player, index) => (
-                       <tr key={player.id}>
-                           <th><h1>{index + 1}</h1></th>
-                           <td>
-                               <div className="flex items-center gap-3">
-                                   <div className="avatar">
-                                       <div className="mask mask-squircle h-24 w-24">
-                                           <img src={player.img} alt="Avatar" />
-                                       </div>
-                                   </div>
-                                   <div className="font-bold"><h1>{player.name}</h1></div>
-                               </div>
-                           </td>
-                           <td><h1>{player.team}</h1></td>
-                           <td><h1>{player.score}</h1></td>
-                       </tr>
-                   ))}
-               </tbody>
+        fetchLeaderboard();
+    }, []);
+    return (
+        <div className="overflow-x-auto">
+            <h1 style={{ marginTop: 50 }}>🏆Leaderboard🏆</h1>
+
+            <div className="flex w-full flex-col">
+                <div className="divider divider-neutral"></div>
+            </div>
+
+            <table className="table">
+                {/* Table Head */}
+                <thead>
+                    <tr>
+                        <th><h1>Rank</h1></th>
+                        <th><h1>Name</h1></th>
+                        <th><h1>Team</h1></th>
+                        <th><h1>Score</h1></th>
+                    </tr>
+                </thead>
 
 
-               {/* Table Footer */}
-               <tfoot>
-                   <tr>
-                       <th><h1>Rank</h1></th>
-                       <th><h1>Name</h1></th>
-                       <th><h1>Team</h1></th>
-                       <th><h1>Score</h1></th>
-                   </tr>
-               </tfoot>
-           </table>
-           <button className="btn btn-wide btn-outline" onClick={() => navigate("/quizzes")} style={{ marginBottom: 25 }}>Go Back</button>
-       </div>
-   );
+                {/* Table Body */}
+                <tbody>
+                    {players.map((player, index) => (
+                        <tr key={player.id}>
+                            <th><h1>{index + 1}</h1></th>
+                            <td>
+                                <div className="flex items-center gap-3">
+                                    <div className="avatar">
+                                        <div className="mask mask-squircle h-24 w-24">
+                                            <img src={player.img} alt="Avatar" />
+                                        </div>
+                                    </div>
+                                    <div className="font-bold"><h1>{player.name}</h1></div>
+                                </div>
+                            </td>
+                            <td><h1>{player.team}</h1></td>
+                            <td><h1>{player.score}</h1></td>
+                        </tr>
+                    ))}
+                </tbody>
+
+
+                {/* Table Footer */}
+                <tfoot>
+                    <tr>
+                        <th><h1>Rank</h1></th>
+                        <th><h1>Name</h1></th>
+                        <th><h1>Team</h1></th>
+                        <th><h1>Score</h1></th>
+                    </tr>
+                </tfoot>
+            </table>
+            <div className="flex w-full flex-col">
+                <div className="divider divider-neutral"></div>
+            </div>
+            <button className="btn btn-wide btn-outline" onClick={() => navigate("/quizzes")} style={{ marginBottom: 25 }}>Go Back</button>
+        </div>
+    );
 }
 
 
