@@ -5,16 +5,19 @@ function Leaderboard() {
     const [players, setPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [showTeams, setShowTeams] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
+                setIsLoading(true);
                 const response = await fetch("http://localhost:4000/api/leaderboard/top10");
                 const data = await response.json();
 
 
                 const sortedPlayers = data.sort((a, b) => b.score - a.score);
+                setIsLoading(false);
                 setPlayers(sortedPlayers);
             } catch (error) {
                 console.error("Error fetching leaderboard:", error);
@@ -25,6 +28,9 @@ function Leaderboard() {
     }, []);
 
     return (
+        <div>
+        { isLoading ? 
+        <span className="loading loading-spinner loading-lg flex items-center justify-center h-screen loader m-auto"></span> : 
         <div className="overflow-x-auto">
             <div className="font-bold"><h1 style={{ marginTop: 50 }}>🏆Leaderboard🏆</h1></div>
             <label className="swap">
@@ -119,6 +125,7 @@ function Leaderboard() {
                 <div className="divider divider-neutral"></div>
             </div>
             <button className="btn btn-wide btn-outline" onClick={() => navigate("/quizzes")} style={{ marginBottom: 25 }}>Go Back</button>
+        </div>}
         </div>
     );
 }
