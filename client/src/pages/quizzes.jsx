@@ -57,7 +57,7 @@ const QuizPage = () => {
             fetchQuizzes();
         }
     };
-
+    
     const handleLeft = () => {
         setSelectedQuizIndex((prev) => Math.max(0, prev - 1));
     };
@@ -67,7 +67,7 @@ const QuizPage = () => {
             Math.min(Math.max(0, quizzes.length - displayLimit), prev + 1)
         );
     };
-    
+
     const visibleQuizzes = quizzes.slice(selectedQuizIndex, selectedQuizIndex + displayLimit);
 
     return (
@@ -118,14 +118,15 @@ const QuizPage = () => {
                 <div className="quiz-carousel">
                     <button className="nav-button left" onClick={handleLeft}>⬅</button>
                     <div className="quiz-list">
-                        {visibleQuizzes.length > 0 ? (
+                    {visibleQuizzes.length > 0 ? (
                             visibleQuizzes.map((quiz, index) => (
                                 <div
                                     key={quiz.quiz_id}
                                     className={`quiz-card ${index === 0 ? "selected" : ""}`}
                                     onClick={() => setSelectedQuiz(quiz)}
                                 >
-                                    <h3>{quiz.description}</h3>
+                                    <h3>{quiz.title}</h3>  {/* Ensure title is displayed */}
+                                    <p>{quiz.description}</p>
                                 </div>
                             ))
                         ) : (
