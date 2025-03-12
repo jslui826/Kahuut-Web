@@ -1,28 +1,32 @@
-import PropTypes from 'prop-types'
-import { useState } from 'react'
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 
 async function registerUser(credentials) {
     return fetch('http://localhost:4000/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
     })
-    .then(data => data.json())
-    .catch(error => console.log(error));
-}
-
-
-function Register({ setToken }) {
-    const [username, setUserName] = useState();
-    const [password, setPassword] = useState();
-
+    .then(res => res.json())
+  }
+  
+  function Register({ setToken }) {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+  
     const handleSubmit = async e => {
-        e.preventDefault();
-        const token = await signUpUser({
-            username,
-            password
-        });
-        setToken(token);
+      e.preventDefault()
+      const response = await registerUser({ email, password })
+  
+      if (response.token) {
+        setToken(response.token)
+        setError('')
+      } else if (response.error) {
+        setError(response.error)
+      } else {
+        setError('Unknown error occurred.')
+      }
     }
 
     return(
@@ -31,12 +35,13 @@ function Register({ setToken }) {
                 <h1 class="text-3xl font-semibold text-center text-gray-700">
                     Register
                 </h1>
+                
                 <form class="space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label class="label">
                             <span class="text-base label-text">Email</span>
                         </label>
-                        <input type="text" placeholder="Email Address" class="w-full input input-bordered" onChange={e => setUserName(e.target.value)} />
+                        <input type="email" placeholder="Email Address" class="w-full input input-bordered" onChange={e => setEmail(e.target.value)} required/>
                     </div>
                     <div>
                         <label class="label">
@@ -54,8 +59,7 @@ function Register({ setToken }) {
     )
 }
 
-export default Register
-
 Register.propTypes = {
     setToken: PropTypes.func.isRequired
 }
+export default Register
