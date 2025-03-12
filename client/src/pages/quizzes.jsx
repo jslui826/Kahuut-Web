@@ -26,6 +26,7 @@ const QuizPage = () => {
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
 
+    const displayLimit = 5; 
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
@@ -58,12 +59,16 @@ const QuizPage = () => {
     };
 
     const handleLeft = () => {
-        setSelectedQuizIndex((prev) => (prev > 0 ? prev - 1 : quizzes.length - 1));
+        setSelectedQuizIndex((prev) => Math.max(0, prev - 1));
     };
 
     const handleRight = () => {
-        setSelectedQuizIndex((prev) => (prev < quizzes.length - 1 ? prev + 1 : 0));
+        setSelectedQuizIndex((prev) =>
+            Math.min(Math.max(0, quizzes.length - displayLimit), prev + 1)
+        );
     };
+    
+    const visibleQuizzes = quizzes.slice(selectedQuizIndex, selectedQuizIndex + displayLimit);
 
     return (
         <div className="quiz-page">
@@ -113,11 +118,11 @@ const QuizPage = () => {
                 <div className="quiz-carousel">
                     <button className="nav-button left" onClick={handleLeft}>⬅</button>
                     <div className="quiz-list">
-                        {quizzes.length > 0 ? (
-                            quizzes.map((quiz, index) => (
+                        {visibleQuizzes.length > 0 ? (
+                            visibleQuizzes.map((quiz, index) => (
                                 <div
                                     key={quiz.quiz_id}
-                                    className={`quiz-card ${index === selectedQuizIndex ? "selected" : ""}`}
+                                    className={`quiz-card ${index === 0 ? "selected" : ""}`}
                                     onClick={() => setSelectedQuiz(quiz)}
                                 >
                                     <h3>{quiz.description}</h3>
