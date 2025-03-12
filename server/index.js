@@ -255,37 +255,20 @@ app.post('/login', async (req, res) => {
 })
 
 
-// Get all quizzes with questions and answers
+// Get all quizzes
 app.get("/quizzes", async (req, res) => {
   try {
       const quizzes = await pool.query(`
-          SELECT q.quiz_id, q.title, q.creator_id, p.email AS creator_email,
-                 encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
-          FROM quizzes q
-          JOIN persons p ON q.creator_id = p.person_id
-      `)
+          SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
+          FROM quizzes
+      `);
 
-      const quizzesWithDetails = await Promise.all(
-          quizzes.rows.map(async (quiz) => {
-              const questionsResult = await pool.query(`
-                  SELECT question, answer1, answer2, answer3, answer4
-                  FROM qa
-                  WHERE quiz_id = $1
-              `, [quiz.quiz_id])
-
-              return { 
-                  ...quiz, 
-                  questions: questionsResult.rows
-              }
-          })
-      )
-
-      res.json(quizzesWithDetails)
+      res.json(quizzes.rows); // No additional queries for questions
   } catch (err) {
-      console.error(err.message)
-      res.status(500).send("Server Error")
+      console.error(err.message);
+      res.status(500).send("Server Error");
   }
-})
+});
 
 // Search bar feature (searching by quiz title)
 app.get("/quizzes/search", async (req, res) => {
@@ -296,11 +279,9 @@ app.get("/quizzes/search", async (req, res) => {
       }
 
       const quizzes = await pool.query(`
-          SELECT q.quiz_id, q.title, q.creator_id, p.email AS creator_email,
-                 encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
-          FROM quizzes q
-          JOIN persons p ON q.creator_id = p.person_id
-          WHERE q.title ILIKE $1
+          SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
+          FROM quizzes
+          WHERE title ILIKE $1
       `, [`%${searchQuery}%`])
 
       res.json(quizzes.rows)

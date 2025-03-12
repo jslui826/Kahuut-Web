@@ -19,7 +19,7 @@ const sampleQuiz = {
 };
 
 const QuizPage = () => {
-    const [quizzes, setQuizzes] = useState([sampleQuiz]);
+    const [quizzes, setQuizzes] = useState([]);
     const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
     const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -37,7 +37,7 @@ const QuizPage = () => {
                 : "http://localhost:4000/quizzes";
             const response = await fetch(url);
             const data = await response.json();
-            setQuizzes([sampleQuiz, ...data]);
+            setQuizzes([...data]);
             if (data.length > 0) setSelectedQuizIndex(0);
         } catch (error) {
             console.error("Error fetching quizzes:", error);
