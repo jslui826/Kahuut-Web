@@ -155,22 +155,27 @@ h1 {
 
 .music-popup {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
     background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
     z-index: 1000;
+}
+.nav-button {
+    background: rgb(11, 49, 75);
+}
+.nav-button:hover {
+    background-color: #0056b3; 
 }
 
 .popup-content {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 400px;
+    width: 100px;
     text-align: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     animation: fadeIn 0.3s ease;
@@ -214,14 +219,12 @@ h1 {
     color: #007bff;
 }
 
-/* Music icon */
 .popup-content ul li::before {
     content: "🎵";
     margin-right: 10px;
     font-size: 16px;
 }
 
-/* Close button */
 .popup-content button {
     margin-top: 10px;
     padding: 10px 20px;
@@ -395,4 +398,14 @@ h1 {
 
 .submit-btn:hover, .close-btn:hover {
     background: #0056b3;
+}
+.search-bar input {
+    background-color: black;  
+    color: white;                    
+    font-size: 16px;        
+    outline: none;     
+}       
+
+.search-bar input::placeholder {
+    color: #888;
 }

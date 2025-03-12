@@ -10,3 +10,6 @@ JWT_SECRET was generated with:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 python script.py /path/to/pdf /path/to/.env
+
+Errors due to architecture of machine running bcrypt can occur. Solution is to just use the setup.sh since it removes
+the node modules.

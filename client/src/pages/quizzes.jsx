@@ -20,13 +20,14 @@ const sampleQuiz = {
 };
 
 const QuizPage = () => {
-    const [quizzes, setQuizzes] = useState([sampleQuiz]);
+    const [quizzes, setQuizzes] = useState([]);
     const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
     const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
 
+    const displayLimit = 5; 
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
@@ -37,7 +38,7 @@ const QuizPage = () => {
                 : "http://localhost:4000/quizzes";
             const response = await fetch(url);
             const data = await response.json();
-            setQuizzes([sampleQuiz, ...data]);
+            setQuizzes([...data]);
             if (data.length > 0) setSelectedQuizIndex(0);
         } catch (error) {
             console.error("Error fetching quizzes:", error);
@@ -57,14 +58,18 @@ const QuizPage = () => {
             fetchQuizzes();
         }
     };
-
+    
     const handleLeft = () => {
-        setSelectedQuizIndex((prev) => (prev > 0 ? prev - 1 : quizzes.length - 1));
+        setSelectedQuizIndex((prev) => Math.max(0, prev - 1));
     };
 
     const handleRight = () => {
-        setSelectedQuizIndex((prev) => (prev < quizzes.length - 1 ? prev + 1 : 0));
+        setSelectedQuizIndex((prev) =>
+            Math.min(Math.max(0, quizzes.length - displayLimit), prev + 1)
+        );
     };
+
+    const visibleQuizzes = quizzes.slice(selectedQuizIndex, selectedQuizIndex + displayLimit);
 
     return (
         <div className="quiz-page">
@@ -114,14 +119,15 @@ const QuizPage = () => {
                 <div className="quiz-carousel">
                     <button className="nav-button left" onClick={handleLeft}>⬅</button>
                     <div className="quiz-list">
-                        {quizzes.length > 0 ? (
-                            quizzes.map((quiz, index) => (
+                    {visibleQuizzes.length > 0 ? (
+                            visibleQuizzes.map((quiz, index) => (
                                 <div
                                     key={quiz.quiz_id}
-                                    className={`quiz-card ${index === selectedQuizIndex ? "selected" : ""}`}
+                                    className={`quiz-card ${index === 0 ? "selected" : ""}`}
                                     onClick={() => setSelectedQuiz(quiz)}
                                 >
-                                    <h3>{quiz.description}</h3>
+                                    <h3>{quiz.title}</h3>  {/* Ensure title is displayed */}
+                                    <p>{quiz.description}</p>
                                 </div>
                             ))
                         ) : (
