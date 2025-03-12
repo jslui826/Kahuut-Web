@@ -399,3 +399,13 @@ h1 {
 .submit-btn:hover, .close-btn:hover {
     background: #0056b3;
 }
+.search-bar input {
+    background-color: black;  
+    color: white;                    
+    font-size: 16px;        
+    outline: none;     
+}       
+
+.search-bar input::placeholder {
+    color: #888;
+}
