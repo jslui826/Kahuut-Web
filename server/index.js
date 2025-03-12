@@ -164,7 +164,6 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
 });
 
 
-
 // Gets quizzes from db
 app.get("/quizzes", async (req, res) => {
   try {
