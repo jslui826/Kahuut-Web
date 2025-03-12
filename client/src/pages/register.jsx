@@ -19,7 +19,23 @@ function Register({ setToken }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await registerUser({ email, password });
+
+    // Ensure a team is selected before allowing registration
+    if (!selectedOption) {
+      setError("Please select a team before signing up.");
+      return;
+    }
+
+    // Convert selected option to correct team letter (R, Y, B)
+    const teamMapping = {
+      triangle: "Y",  // Yellow Team
+      circle: "R",     // Red Team
+      square: "B",     // Blue Team
+    };
+
+    const team = teamMapping[selectedOption];
+
+    const response = await registerUser({ email, password, team });
 
     if (response.token) {
       setToken(response.token);
@@ -36,7 +52,7 @@ function Register({ setToken }) {
     <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden">
       {/* Button Options Above Registration Form */}
       <div style={{ marginBottom: "20px" }}>
-        <h1 className="text-3x1 font-semibold text-center">Select an Option:</h1>
+        <h1 className="text-3xl font-semibold text-center">Select Your Team:</h1>
         <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
           {[
             { id: "triangle", color: "yellow", shape: "😭" },
@@ -62,6 +78,7 @@ function Register({ setToken }) {
             </button>
           ))}
         </div>
+        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
       </div>
 
       <div className="w-full p-6 bg-white border-t-4 border-gray-600 rounded-md shadow-md border-top lg:max-w-lg">
@@ -89,6 +106,7 @@ function Register({ setToken }) {
               placeholder="Enter Password"
               className="w-full input input-bordered"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
           <a href="../login" className="text-xs text-gray-600 hover:underline hover:text-blue-600">
@@ -107,4 +125,4 @@ Register.propTypes = {
   setToken: PropTypes.func.isRequired,
 };
 
-export default Register
+export default Register;

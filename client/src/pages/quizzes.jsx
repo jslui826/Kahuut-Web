@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/quizzes.css";
 
+const token = localStorage.getItem('token')
 const defaultMusic = "/assets/ZeldaMain.mp3";
 const musicFiles = [
     "01. Ashitaka Sekki.mp3",
@@ -70,24 +71,32 @@ const QuizPage = () => {
 
     const [quizTitle, setQuizTitle] = useState(""); // State for title input
 
+    const [isUploading, setIsUploading] = useState(false);
+
     const handleFileUpload = async () => {
         if (!pdfFile || !quizTitle.trim()) {
             alert("Please enter a title and upload a PDF file for the quiz.");
             return;
         }
-    
+
+        setIsUploading(true);
+        const token = localStorage.getItem('token'); // assuming JWT stored in localStorage
+
         const formData = new FormData();
-        formData.append("title", quizTitle); // Include title
+        formData.append("title", quizTitle);
         formData.append("pdf", pdfFile);
         if (imageFile) formData.append("image", imageFile);
         if (mp3File) formData.append("mp3", mp3File);
-    
+
         try {
             const response = await fetch("http://localhost:4000/quizzes/upload", {
                 method: "POST",
                 body: formData,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
             });
-    
+
             if (response.ok) {
                 alert("Quiz uploaded successfully!");
                 setShowMakeQuizPage(false);
@@ -101,6 +110,8 @@ const QuizPage = () => {
             }
         } catch (error) {
             alert("Error uploading quiz.");
+        } finally {
+            setIsUploading(false);
         }
     };
     
