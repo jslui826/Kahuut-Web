@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/quizzes.css";
+import pfp from "/assets/default_pfp.jpg"
 
 const token = localStorage.getItem('token');
 const defaultMusic = "/assets/ZeldaMain.mp3";
@@ -89,7 +90,7 @@ const QuizPage = () => {
 
             <div className="sidebar">
                 <div className="profile-section">
-                    <img src="/assets/user1.png" alt="User" className="profile-icon" />
+                    <img src={pfp} alt="User" className="profile-icon" />
                 </div>
                 <ul className="menu">
                     <li>Quizzes</li>

@@ -119,3 +119,17 @@ export const people = [{
     score: 60,
     img: 'https://img.daisyui.com/images/profile/demo/5@94.webp'
 }]
+
+export const teams = [{
+    id: 0,
+    name: 'R',
+    score: 100 
+}, {
+    id: 1,
+    name: 'Y',
+    score: 90
+}, {
+    id: 2,
+    name: 'B',
+    score: 80
+}]
