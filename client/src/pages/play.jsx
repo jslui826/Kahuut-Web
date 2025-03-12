@@ -136,6 +136,10 @@ const Play = () => {
 
             {stage === "final" && (
                 <div className="overlay final-screen">
+                    <video autoPlay loop className="background-video">
+                        <source src="/assets/egg.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                     <h2>Quiz Complete</h2>
                     <p>Correct Answers: {correctCount}</p>
                     <p>Wrong Answers: {wrongCount}</p>
