@@ -7,6 +7,7 @@ import Home from './pages/home';
 import Quizzes from './pages/quizzes';
 import Play from "./pages/play";
 import Leaderboard from "./pages/leaderboard";
+import MakeQuiz from "./pages/makequiz";
 
 function App() {
   const { token, setToken } = useToken();
@@ -23,6 +24,8 @@ function App() {
             <Route path="/quiz" element={<Quizzes />} />
             <Route path="/play" element={<Play />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/makequiz" element={<MakeQuiz />} />
+            
 
             {/* Redirect authenticated users away from login/register */}
             <Route path="/login" element={<Navigate to="/" replace />} />
