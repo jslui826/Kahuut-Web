@@ -350,3 +350,49 @@ h1 {
     cursor: pointer;
     font-size: 1rem;
 }
+.quiz-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quiz-form {
+    background: #fff; 
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    text-align: center;
+}
+
+.quiz-form h2, .quiz-form h3, .quiz-form label, .quiz-form p {
+    color: #000; 
+}
+
+.quiz-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.submit-btn, .close-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.submit-btn:hover, .close-btn:hover {
+    background: #0056b3;
+}

@@ -68,56 +68,79 @@ const QuizPage = () => {
         setSelectedQuizIndex((prev) => (prev < quizzes.length - 1 ? prev + 1 : 0));
     };
 
+    const [quizTitle, setQuizTitle] = useState(""); // State for title input
+
     const handleFileUpload = async () => {
-        if (!pdfFile) {
-            alert("Please upload a PDF file for the quiz.");
+        if (!pdfFile || !quizTitle.trim()) {
+            alert("Please enter a title and upload a PDF file for the quiz.");
             return;
         }
-
+    
         const formData = new FormData();
+        formData.append("title", quizTitle); // Include title
         formData.append("pdf", pdfFile);
         if (imageFile) formData.append("image", imageFile);
         if (mp3File) formData.append("mp3", mp3File);
-
+    
         try {
             const response = await fetch("http://localhost:4000/quizzes/upload", {
                 method: "POST",
                 body: formData,
             });
-
+    
             if (response.ok) {
                 alert("Quiz uploaded successfully!");
                 setShowMakeQuizPage(false);
-                fetchQuizzes(); // Refresh quiz list
+                setQuizTitle("");
+                setPdfFile(null);
+                setImageFile(null);
+                setMp3File(null);
+                fetchQuizzes();
             } else {
                 alert("Failed to upload quiz.");
             }
         } catch (error) {
-            console.error("Upload error:", error);
             alert("Error uploading quiz.");
         }
     };
-
+    
     if (showMakeQuizPage) {
         return (
             <div className="quiz-fullscreen">
                 <div className="quiz-form">
                     <h2>Create a New Quiz</h2>
-                    <label>Upload PDF File (Required):</label>
+    
+                    <h3>Step 1: Enter Quiz Title</h3>
+                    <label>Quiz Title (Required):</label>
+                    <input
+                        type="text"
+                        placeholder="Enter quiz title here..."
+                        value={quizTitle}
+                        onChange={(e) => setQuizTitle(e.target.value)}
+                    />
+    
+                    <h3>Step 2: Upload PDF File</h3>
+                    <label>PDF (Required):</label>
                     <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
-
-                    <label>Upload Image (Optional):</label>
+                    {pdfFile && <p>{pdfFile.name}</p>}
+    
+                    <h3>Step 3: Upload an Image (Optional)</h3>
+                    <label>Image (Optional):</label>
                     <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
-
-                    <label>Upload MP3 (Optional):</label>
+                    {imageFile && <p>{imageFile.name}</p>}
+    
+                    <h3>Step 4: Upload an MP3 File (Optional)</h3>
+                    <label>MP3 (Optional):</label>
                     <input type="file" accept="audio/mp3" onChange={(e) => setMp3File(e.target.files[0])} />
-
-                    <button className="submit-btn" onClick={handleFileUpload}>Submit</button>
+                    {mp3File && <p>{mp3File.name}</p>}
+    
+                    <button className="submit-btn" onClick={handleFileUpload}>Submit Quiz</button>
                     <button className="close-btn" onClick={() => setShowMakeQuizPage(false)}>Go Back</button>
                 </div>
             </div>
         );
     }
+    
 
     return (
         <div className="quiz-page">
