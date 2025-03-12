@@ -1,1 +1,12 @@
 JSONWebToken is passed to the frontend to use after verification.
+You require an .env file that is not present within this directory (obviously).
+This .env file has the following structure:
+
+DATABASE_URL=...
+OPENAI_API_KEY=...
+JWT_SECRET=...
+
+JWT_SECRET was generated with:
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+python script.py /path/to/pdf /path/to/.env

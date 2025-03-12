@@ -5,9 +5,9 @@ const app = express()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
-
+const env = ".env"
 const pool = new Pool({
-    connectionString: "postgres://postgres:DXaLqzNjklFmJkfcQAvDXVvqSCIPfaQo@gondola.proxy.rlwy.net:38869/railway"
+    connectionString: process.env.DATABASE_URL
 });
 
 module.exports = pool;
@@ -39,7 +39,7 @@ app.post('/signup', async (req, res) => {
           [email, hashedPassword]
       );
 
-      const token = jwt.sign({ userId: newUser.rows[0].user_id }, 'your-secret-key', { expiresIn: '1h' });
+      const token = jwt.sign({ userId: newUser.rows[0].user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       res.status(201).json({ token });
   } catch (err) {
