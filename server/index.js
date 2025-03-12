@@ -27,43 +27,53 @@ app.use(express.json())
 //ROUTES
 // Signup endpoint
 app.post('/signup', async (req, res) => {
-  const { email, password } = req.body
+  const { email, password, team } = req.body; // team is R, Y, or B
 
-  if (!email.endsWith("@g.ucla.edu")) {
-    return res.status(400).json({ error: "Email must be a g.ucla.edu address." })
+  if (!email || !password || !team) {
+    return res.status(400).json({ error: "Email, password, and team are required." });
+  }
+
+  if (!['R', 'Y', 'G'].includes(team)) {
+    return res.status(400).json({ error: "Invalid team selection." })
   }
 
   try {
-    // Check for existing email in persons table
     const existingUser = await pool.query(
-      "SELECT person_id FROM persons WHERE email = $1",
-      [email]
-    )
+      'SELECT email FROM persons WHERE email = $1', [email]
+    );
 
     if (existingUser.rows.length > 0) {
-      return res.status(409).json({ error: "Email already exists." })
+      return res.status(409).json({ error: "Email already exists." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      "INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id, email",
+      'INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id',
       [email, hashedPassword]
-    )
+    );
+
+    const person_id = newUser.rows[0].person_id;
+
+    // Insert default profile for user
+    await pool.query(
+      'INSERT INTO profile (person_id, team) VALUES ($1, $2)',
+      [person_id, team]
+    );
 
     const token = jwt.sign(
-      { userId: newUser.rows[0].person_id, email: newUser.rows[0].email },
+      { person_id, email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
-    )
+    );
 
-    res.status(201).json({ token })
-    console.log("Added User")
+    res.status(201).json({ token });
+    console.log("User and Profile created");
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Internal server error." })
+    console.error(err);
+    res.status(500).json({ error: "Internal server error." });
   }
-})
+});
 
 // Login endpoint (corrected)
 app.post('/login', async (req, res) => {
