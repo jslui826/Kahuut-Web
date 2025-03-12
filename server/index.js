@@ -307,3 +307,46 @@ app.get("/my_quizzes", authenticateToken, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+// Upload Profile Picture
+app.post("/uploadPfp", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.person_id; // Getting user ID
+
+    if (!req.files || !req.files.pfp) {
+      return res.status(400).json({ error: "Profile picture is required." });
+    }
+
+    const imageFile = req.files.pfp;
+    const uploadsDir = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+
+    const imagePath = path.join(uploadsDir, imageFile.name);
+    await imageFile.mv(imagePath);
+
+    // Calling image_processing.py to process the image
+    exec(`python3 python_subprocesses/image_processing.py "${imagePath}"`, async (error, stdout, stderr) => {
+      if (error) {
+        console.error(stderr);
+        return res.status(500).json({ error: "Image processing failed." });
+      }
+
+      const processedImagePath = stdout.trim();
+      const imageBuffer = fs.readFileSync(processedImagePath);
+
+      await pool.query(
+        "UPDATE profile SET pfp = $1 WHERE person_id = $2",
+        [imageBuffer, userId]
+      );
+
+      res.status(200).json({ message: "Profile picture updated successfully!" });
+
+      // Cleaning up my mess
+      fs.unlinkSync(imagePath);
+      fs.unlinkSync(processedImagePath);
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
