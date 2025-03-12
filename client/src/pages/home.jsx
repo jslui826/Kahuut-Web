@@ -35,7 +35,7 @@ const Home = () => {
             </div>
 
             {/* Start Button - Navigates to Start Page */}
-            <button className="press-button" onClick={() => navigate("/start")}>
+            <button className="press-button" onClick={() => navigate("/quizzes")}>
                 Start
             </button>
         </div>

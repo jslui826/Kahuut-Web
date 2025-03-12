@@ -21,7 +21,7 @@ function App() {
           // Routes for authenticated users
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/start" element={<Start />} />
+            <Route path="/quizzes" element={<Quizzes />} />
             <Route path="/quiz" element={<Quizzes />} />
             <Route path="/play" element={<Play />} />
 
