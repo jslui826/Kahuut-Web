@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import psycopg2
+from psycopg2 import Binary
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -45,9 +46,8 @@ def parse_questions(input_text):
         print(f"❌ Error parsing questions: {e}")
         sys.exit(1)
 
-
 def store_questions(parsed_questions, creator_email, quiz_title, image_path=None, audio_path=None):
-    """Stores parsed questions into the database."""
+    """Stores parsed questions into the PostgreSQL database, properly handling binary image/audio data."""
     try:
         print("🔍 Connecting to database...")
         conn = psycopg2.connect(DATABASE_URL)
@@ -60,28 +60,30 @@ def store_questions(parsed_questions, creator_email, quiz_title, image_path=None
 
         if not person:
             print("❌ Creator email not found in database.")
-            sys.exit(1)  # Exit with error
+            sys.exit(1)
 
         creator_id = person[0]
         print(f"✅ Creator found: ID = {creator_id}")
 
-        # Read and encode image/audio files as bytes if they exist
+        # ✅ Read and encode image/audio files as BYTEA
         image_bytes = None
         audio_bytes = None
 
-        if image_path:
-            try:
-                with open(image_path, 'rb') as img_file:
-                    image_bytes = img_file.read()
-            except Exception as e:
-                print(f"⚠️ Warning: Failed to read image file '{image_path}': {e}")
+        print(f"📂 Checking image path: {image_path}")
+        if image_path and os.path.exists(image_path) and os.path.isfile(image_path):
+            print(f"✅ Image file exists: {image_path}")
+            with open(image_path, 'rb') as img_file:
+                image_bytes = Binary(img_file.read())
+        else:
+            print(f"⚠️ Warning: Image file not found or unreadable: {image_path}")
 
-        if audio_path:
-            try:
-                with open(audio_path, 'rb') as audio_file:
-                    audio_bytes = audio_file.read()
-            except Exception as e:
-                print(f"⚠️ Warning: Failed to read audio file '{audio_path}': {e}")
+        print(f"🎵 Checking audio path: {audio_path}")
+        if audio_path and os.path.exists(audio_path) and os.path.isfile(audio_path):
+            print(f"✅ Audio file exists: {audio_path}")
+            with open(audio_path, 'rb') as audio_file:
+                audio_bytes = Binary(audio_file.read())
+        else:
+            print(f"⚠️ Warning: Audio file not found or unreadable: {audio_path}")
 
         print("📝 Inserting quiz into database...")
         cursor.execute("""
@@ -107,7 +109,16 @@ def store_questions(parsed_questions, creator_email, quiz_title, image_path=None
             ))
 
         conn.commit()
-        print("✅ Questions successfully stored!")
+        print("✅ Questions successfully stored in the database!")
+
+        # ✅ Now safe to delete files after storage
+        if image_path and os.path.exists(image_path):
+            os.remove(image_path)
+            print(f"🗑️ Deleted image file: {image_path}")
+
+        if audio_path and os.path.exists(audio_path):
+            os.remove(audio_path)
+            print(f"🗑️ Deleted audio file: {audio_path}")
 
     except Exception as e:
         print(f"❌ Database Error: {e}")
@@ -117,15 +128,24 @@ def store_questions(parsed_questions, creator_email, quiz_title, image_path=None
         cursor.close()
         conn.close()
 
-
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("Usage: python parsing_output.py <input_file.txt> <creator_email> <quiz_title>")
+    print("📥 Received command-line arguments:", sys.argv)
+    if len(sys.argv) < 6:
+        print("Usage: python parsing_output.py <input_file.txt> <creator_email> <quiz_title> <image_path> <audio_path>")
         sys.exit(1)
 
     input_file = sys.argv[1]
     creator_email = sys.argv[2]
     quiz_title = sys.argv[3]
+    image_path = sys.argv[4] if sys.argv[4] not in ["None", ""] else None
+    audio_path = sys.argv[5] if sys.argv[5] not in ["None", ""] else None
+
+    print(f"📂 Final Image Path: {image_path}")
+    print(f"🎵 Final Audio Path: {audio_path}")
+
+    # Check if files exist before proceeding
+    print(f"✅ Checking image file existence: {os.path.exists(image_path) if image_path else 'N/A'}")
+    print(f"✅ Checking audio file existence: {os.path.exists(audio_path) if audio_path else 'N/A'}")
 
     print("📥 Loading AI-generated quiz content...")
     try:
@@ -138,5 +158,5 @@ if __name__ == "__main__":
     parsed_questions = parse_questions(input_text=content)
 
     print(f"📊 {len(parsed_questions)} questions extracted.")
-    store_questions(parsed_questions=parsed_questions, creator_email=creator_email, quiz_title=quiz_title)
+    store_questions(parsed_questions=parsed_questions, creator_email=creator_email, quiz_title=quiz_title, image_path=image_path, audio_path=audio_path)
     print("✅ Pipeline completed successfully!")

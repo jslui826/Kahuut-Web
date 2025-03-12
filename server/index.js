@@ -21,7 +21,7 @@ app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
   useTempFiles: true,
   tempFileDir: '/tmp/'
-}))
+}));
 app.use(express.json())
 
 // Authenticate the session token created during registration or login
@@ -75,9 +75,20 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
   const imagePath = imageFile ? path.join(uploadsDir, imageFile.name) : null
   const audioPath = audioFile ? path.join(uploadsDir, audioFile.name) : null
 
-  if (imageFile) await imageFile.mv(imagePath)
-  if (audioFile) await audioFile.mv(audioPath)
-
+  if (imageFile) {
+    await imageFile.mv(imagePath);
+    console.log("✅ Image successfully saved at:", imagePath);
+  } else {
+    console.log("❌ No image file received.");
+  }
+  
+  if (audioFile) {
+    await audioFile.mv(audioPath);
+    console.log("✅ Audio successfully saved at:", audioPath);
+  } else {
+    console.log("❌ No audio file received.");
+  }
+    
   const creatorEmail = req.user.email
 
   // Call pdf_processing.py
@@ -93,20 +104,56 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
 
     // Call parsing_output.py
     console.log("Executing parsing of llm output")
-    exec(`python3 python_subprocesses/parsing_output.py "${aiOutputPath}" "${creatorEmail}" "${title}" "${imagePath}" "${audioPath}"`, (parseErr, parseStdout, parseStderr) => {
-    if (parseErr) {
-        console.error("❌ Parsing Output Error:", parseStderr);
-        return res.status(500).json({ error: 'Parsing and storing failed.', details: parseStderr });
-    }
-
-    console.log("✅ Parsing output completed successfully!");
-    res.status(201).json({ message: "Quiz successfully generated and stored!" });
-
-    fs.unlinkSync(pdfPath);
-    fs.unlinkSync(aiOutputPath);
-    if (imagePath) fs.unlinkSync(imagePath);
-    if (audioPath) fs.unlinkSync(audioPath);
-});
+    console.log(`Final command: python3 parsing_output.py "${aiOutputPath}" "${creatorEmail}" "${title}" "${imagePath}" "${audioPath}"`);
+    exec(
+      `python3 python_subprocesses/parsing_output.py '${aiOutputPath}' '${creatorEmail}' '${title}' '${imagePath}' '${audioPath}'`,
+      (parseErr, parseStdout, parseStderr) => {
+          console.log("🔄 Parsing Output Started...");
+          console.log("📂 Image Path Sent:", imagePath);
+          console.log("🎵 Audio Path Sent:", audioPath);
+  
+          if (parseErr) {
+              console.error("❌ Parsing Output Error:", parseStderr || "No error message received.");
+              return res.status(500).json({ error: 'Parsing and storing failed.', details: parseStderr || "Unknown error" });
+          }
+  
+          console.log("✅ Parsing Output Completed Successfully!");
+          console.log("📄 Parser Output:", parseStdout);
+  
+          res.status(201).json({ message: "Quiz successfully generated and stored!" });
+  
+          setTimeout(() => {
+            try {
+                if (fs.existsSync(pdfPath)) {
+                    fs.unlinkSync(pdfPath);
+                    console.log("🗑️ Deleted PDF file:", pdfPath);
+                }
+        
+                if (fs.existsSync(aiOutputPath)) {
+                    fs.unlinkSync(aiOutputPath);
+                    console.log("🗑️ Deleted AI output file:", aiOutputPath);
+                }
+        
+                if (imagePath && fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                    console.log("🗑️ Deleted image file:", imagePath);
+                } else {
+                    console.log("⚠️ Skipping deletion: Image file already deleted.");
+                }
+        
+                if (audioPath && fs.existsSync(audioPath)) {
+                    fs.unlinkSync(audioPath);
+                    console.log("🗑️ Deleted audio file:", audioPath);
+                } else {
+                    console.log("⚠️ Skipping deletion: Audio file already deleted.");
+                }
+            } catch (err) {
+                console.error("⚠️ Error during cleanup:", err);
+            }
+        }, 5000);  // Delay ensures Python has finished before deletion
+        
+      }
+  );  
 
   })
 })
@@ -341,7 +388,7 @@ app.post("/uploadPfp", authenticateToken, async (req, res) => {
 
     const imagePath = path.join(uploadsDir, imageFile.name);
     await imageFile.mv(imagePath);
-
+    
     // Calling image_processing.py to process the image
     exec(`python3 python_subprocesses/image_processing.py "${imagePath}"`, async (error, stdout, stderr) => {
       if (error) {
