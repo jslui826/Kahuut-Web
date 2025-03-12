@@ -78,7 +78,6 @@ function Register({ setToken }) {
             </button>
           ))}
         </div>
-        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
       </div>
 
       <div className="w-full p-6 bg-white border-t-4 border-gray-600 rounded-md shadow-md border-top lg:max-w-lg">
