@@ -62,7 +62,8 @@ async function registerUser(credentials) {
     )
 }
 
+export default Register
+
 Register.propTypes = {
     setToken: PropTypes.func.isRequired
 }
-export default Register
