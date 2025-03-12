@@ -39,7 +39,7 @@ function Login({ setToken }) {
                         <label className="label">
                             <span className="text-base label-text">Email</span>
                         </label>
-                        <input type="text" placeholder="Email Address" className="w-full input input-bordered" onChange={e => setEmail(e.target.value)} />
+                        <input type="email" placeholder="Email Address" className="w-full input input-bordered" onChange={e => setEmail(e.target.value)} />
                     </div>
                     <div>
                         <label className="label">
