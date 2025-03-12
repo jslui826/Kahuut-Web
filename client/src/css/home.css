@@ -6,11 +6,6 @@
     box-sizing: border-box;
 }
 
-.navbar {
-    position: relative;
-    z-index: 20;
-}
-
 .loader-container {
     display: flex;
     justify-content: center;
@@ -27,11 +22,12 @@
 .loader-container::before,
 .loader-container::after {
     content: "";
-    position: absolute;
+    position: relative;
     width: 200%;
     height: 200%;
     background: radial-gradient(circle at 50% 50%, rgba(0, 0, 255, 0.3), transparent 70%);
     animation: wave-move 8s infinite alternate ease-in-out;
+    overflow: hidden;
 }
 
 @keyframes wave-move {
