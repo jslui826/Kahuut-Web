@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 function Leaderboard() {
    const [players, setPlayers] = useState([]);
+   const navigate = useNavigate();
+
    useEffect(() => {
        const fetchLeaderboard = async () => {
            try {
@@ -22,10 +25,8 @@ function Leaderboard() {
    }, []);
    return (
        <div className="overflow-x-auto">
-           <h1>______________________________</h1>
-           <h1>Leaderboard</h1>
-           <a href="../quizzes" className="text-l text-gray-600">Dashboard</a>
-
+           <h1 style={{ marginTop: 50 }}>🏆Leaderboard🏆</h1>
+           <h1>___________________________________________________________________</h1>
 
            <table className="table">
                {/* Table Head */}
@@ -65,12 +66,13 @@ function Leaderboard() {
                <tfoot>
                    <tr>
                        <th><h1>Rank</h1></th>
-                       <th><h1>NameM</h1></th>
+                       <th><h1>Name</h1></th>
                        <th><h1>Team</h1></th>
                        <th><h1>Score</h1></th>
                    </tr>
                </tfoot>
            </table>
+           <button className="btn btn-wide btn-outline" onClick={() => navigate("/quizzes")} style={{ marginBottom: 25 }}>Go Back</button>
        </div>
    );
 }

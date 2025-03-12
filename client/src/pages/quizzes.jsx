@@ -92,10 +92,8 @@ const QuizPage = () => {
                     <img src="/assets/user1.png" alt="User" className="profile-icon" />
                 </div>
                 <ul className="menu">
-                    <li>Dashboard</li>
                     <li>Quizzes</li>
                     <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
-                    <li>Settings</li>
                     <li onClick={() => setShowMusicPopup(true)}>Music</li>
                     <li onClick={() => navigate("/makequiz")}>Make Quiz</li>
                     <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
