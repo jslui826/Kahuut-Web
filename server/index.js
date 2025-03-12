@@ -4,11 +4,8 @@ const port = 4000
 const app = express()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { Pool } = require('pg')
 const env = ".env"
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-})
+const pool = require('./db');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
@@ -61,6 +58,7 @@ app.post('/signup', async (req, res) => {
     )
 
     res.status(201).json({ token })
+    console.log("Added User")
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: "Internal server error." })

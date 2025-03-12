@@ -49,9 +49,9 @@ async function registerUser(credentials) {
                         </label>
                         <input type="password" placeholder="Enter Password" className="w-full input input-bordered" onChange={e => setPassword(e.target.value)} />
                     </div>
-                    <a href="../login" className="text-xs text-gray-600 hover:underline hover:text-blue-600">Already have an account?</a>
-                    <div>
-                        <button className="btn btn-block btn-neutral">Sign Up</button>
+                    <a href="../login" class="text-xs text-gray-600 hover:underline hover:text-blue-600">Already have an account?</a>
+                    <div>t
+                        <button class="btn btn-block btn-neutral">Sign Up</button>
                     </div>
                 </form>
             </div>
