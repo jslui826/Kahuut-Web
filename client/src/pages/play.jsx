@@ -8,15 +8,15 @@ const Play = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState(null);
     const [stage, setStage] = useState("question");
-    const [timeLeft, setTimeLeft] = useState(20);
+    const [timeLeft, setTimeLeft] = useState(10);
     const [confirmTimeLeft, setConfirmTimeLeft] = useState(10);
     const [resultTimeLeft, setResultTimeLeft] = useState(5);
     const [nextTimeLeft, setNextTimeLeft] = useState(5);
     const [correctCount, setCorrectCount] = useState(0);
     const [wrongCount, setWrongCount] = useState(0);
-
+    const [incorrectAnswers, setIncorrectAnswers] = useState([]);
     const question = quizData[currentQuestionIndex];
-
+    
     useEffect(() => {
         if (stage === "question" && timeLeft > 0) {
             const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -67,6 +67,12 @@ const Play = () => {
             setCorrectCount((prev) => prev + 1);
         } else {
             setWrongCount((prev) => prev + 1);
+            setIncorrectAnswers((prev) => [...prev, { 
+                question: question.question, 
+                selectedAnswer: option,
+                correctAnswer: question.correctAnswer 
+            }]);
+    
         }
 
         setStage("confirm");
@@ -144,7 +150,6 @@ const Play = () => {
                     <p>Correct Answers: {correctCount}</p>
                     <p>Wrong Answers: {wrongCount}</p>
                     <p>Score: {percentageScore}%</p>
-
                     <button onClick={() => window.location.reload()} className="restart-button">Play Again</button>
                     <button onClick={() => navigate("/quiz")} className="quizzes-button">
                         Back to Quizzes
