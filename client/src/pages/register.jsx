@@ -36,7 +36,7 @@ function Register({ setToken }) {
     <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden">
       {/* Button Options Above Registration Form */}
       <div style={{ marginBottom: "20px" }}>
-        <h3>Select an Option:</h3>
+        <h1 className="text-3x1 font-semibold text-center">Select an Option:</h1>
         <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
           {[
             { id: "triangle", color: "yellow", shape: "😭" },
