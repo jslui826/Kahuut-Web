@@ -42,13 +42,13 @@ module.exports = pool
 //ROUTES
 // Signup endpoint
 app.post('/signup', async (req, res) => {
-  const { email, password, team } = req.body; // team is R, Y, or G
+  const { email, password, team } = req.body; // team is R, Y, or B
 
   if (!email || !password || !team) {
     return res.status(400).json({ error: "Email, password, and team are required." });
   }
 
-  if (!['R', 'Y', 'G'].includes(team)) {
+  if (!['R', 'Y', 'B'].includes(team)) {
     return res.status(400).json({ error: "Invalid team selection." });
   }
 
