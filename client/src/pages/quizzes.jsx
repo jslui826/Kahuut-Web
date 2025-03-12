@@ -1,22 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Carousel from "./carousel"; 
 import "../css/quizzes.css";
 
-const token = localStorage.getItem('token');
+const token = localStorage.getItem("token");
 const defaultMusic = "/assets/ZeldaMain.mp3";
 const musicFiles = [
     "01. Ashitaka Sekki.mp3",
     "01. Hell On Earth.mp3",
     "1-01. Key.mp3",
     "07. Mipha's Theme.mp3",
-    "ZeldaMain.mp3"
+    "ZeldaMain.mp3",
 ];
-
-const sampleQuiz = {
-    quiz_id: "sample",
-    title: "Sample Quiz",
-    description: "Test your knowledge with this sample quiz!",
-};
 
 const QuizPage = () => {
     const [quizzes, setQuizzes] = useState([]);
@@ -26,7 +21,7 @@ const QuizPage = () => {
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
 
-    const displayLimit = 5; 
+    const displayLimit = 5;
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
@@ -57,18 +52,6 @@ const QuizPage = () => {
             fetchQuizzes();
         }
     };
-    
-    const handleLeft = () => {
-        setSelectedQuizIndex((prev) => Math.max(0, prev - 1));
-    };
-
-    const handleRight = () => {
-        setSelectedQuizIndex((prev) =>
-            Math.min(Math.max(0, quizzes.length - displayLimit), prev + 1)
-        );
-    };
-
-    const visibleQuizzes = quizzes.slice(selectedQuizIndex, selectedQuizIndex + displayLimit);
 
     return (
         <div className="quiz-page">
@@ -115,26 +98,15 @@ const QuizPage = () => {
                         onChange={handleSearchChange}
                     />
                 </div>
-                <div className="quiz-carousel">
-                    <button className="nav-button left" onClick={handleLeft}>⬅</button>
-                    <div className="quiz-list">
-                    {visibleQuizzes.length > 0 ? (
-                            visibleQuizzes.map((quiz, index) => (
-                                <div
-                                    key={quiz.quiz_id}
-                                    className={`quiz-card ${index === 0 ? "selected" : ""}`}
-                                    onClick={() => setSelectedQuiz(quiz)}
-                                >
-                                    <h3>{quiz.title}</h3>  {/* Ensure title is displayed */}
-                                    <p>{quiz.description}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No quizzes found.</p>
-                        )}
-                    </div>
-                    <button className="nav-button right" onClick={handleRight}>➡</button>
-                </div>
+
+                {/* ✅ Refactored to use the new Carousel component */}
+                <Carousel
+                    quizzes={quizzes}
+                    selectedIndex={selectedQuizIndex}
+                    setSelectedIndex={setSelectedQuizIndex}
+                    setSelectedQuiz={setSelectedQuiz}
+                    displayLimit={displayLimit}
+                />
             </div>
 
             {selectedQuiz && (
