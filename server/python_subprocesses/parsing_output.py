@@ -34,33 +34,41 @@ def parse_questions(input_text):
             })
 
     return questions
-
-def store_questions_to_db(title, creator_email, questions):
+def store_questions(parsed_questions, creator_email, quiz_title, image_path=None, audio_path=None):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     cursor.execute("SELECT person_id FROM persons WHERE email = %s", (creator_email,))
-    person_result = cursor.fetchone()
-
-    if not person_result:
-        print(f"User with email {creator_email} does not exist.")
+    person = cursor.fetchone()
+    if not person:
+        print("Creator email not found.")
         return
-    creator_id = person_result[0]
+    creator_id = person[0]
 
-    for q in questions:
+    # Read and encode image/audio files as bytes if they exist
+    image_bytes = open(image_path, 'rb').read() if image_path else None
+    audio_bytes = open(audio_path, 'rb').read() if audio_path else None
+
+    cursor.execute("""
+        INSERT INTO quizzes (title, creator_id, audio, image)
+        VALUES (%s, %s, %s, %s)
+        RETURNING quiz_id
+    """, (quiz_title, creator_id, audio_bytes, image_bytes))
+
+    quiz_id = cursor.fetchone()[0]
+
+    for q in parsed_questions:
         cursor.execute("""
-            INSERT INTO quizzes (title, creator_id, question, answer1, answer2, answer3, answer4, correct_answer)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-            RETURNING quiz_id;
-        """, (quiz_title, creator_id, q['question'], q['answers'][0], q['answers'][1], q['answers'][2], q['answers'][3], q['correct_answer_index']))
-
-        quiz_id = cursor.fetchone()[0]
-
-        # Also create profile reference
-        cursor.execute("""
-            INSERT INTO profiles (person_id, quiz_id) VALUES (%s,%s)
-            ON CONFLICT DO NOTHING;
-        """, (creator_id, quiz_id))
+            INSERT INTO qa (quiz_id, question, answer1, answer2, answer3, answer4)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            quiz_id,
+            q['question'],
+            q['correct_answer'],
+            q['incorrect_answers'][0],
+            q['incorrect_answers'][1],
+            q['incorrect_answers'][2]
+        ))
 
     conn.commit()
     cursor.close()
