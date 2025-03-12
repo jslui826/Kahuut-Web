@@ -151,9 +151,7 @@ const Play = () => {
                     <p>Wrong Answers: {wrongCount}</p>
                     <p>Score: {percentageScore}%</p>
                     <button onClick={() => window.location.reload()} className="restart-button">Play Again</button>
-                    <button onClick={() => navigate("/quiz")} className="quizzes-button">
-                        Back to Quizzes
-                    </button>
+                    <button onClick={() => navigate(`/play/${selectedQuiz.quiz_id}`)}>Start</button>
                 </div>
             )}
         </div>

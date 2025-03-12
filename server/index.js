@@ -324,6 +324,34 @@ app.get("/api/leaderboard/top10", async (req, res) => {
   }
 })
 
+// Quizzes questions
+app.get("/quizzes/:quiz_id/questions", async (req, res) => {
+  const { quiz_id } = req.params;
+ 
+ 
+  try {
+      const questions = await pool.query(
+          `SELECT question, answer1, answer2, answer3, answer4
+           FROM qa WHERE quiz_id = $1`,
+          [quiz_id]
+      );
+ 
+ 
+      const formattedQuestions = questions.rows.map((q) => ({
+          question: q.question,
+          options: [q.answer1, q.answer2, q.answer3, q.answer4].sort(() => Math.random() - 0.5), // Shuffle answers
+          correctAnswer: q.answer1, // Assume answer1 is the correct one
+      }));
+ 
+ 
+      res.json(formattedQuestions);
+  } catch (err) {
+      console.error("Error fetching questions:", err);
+      res.status(500).send("Server Error");
+  }
+ });
+ 
+
 
 module.exports = app
 
