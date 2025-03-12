@@ -1,45 +1,48 @@
-import { useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import useToken from './components/useToken';
 
-import './App.css'
-import Start from './pages/start'
-import Login from './pages/login'
-import Register from './pages/register'
-import Home from './pages/home'
-import Navbar from './components/navbar'
-import Quizzes from './pages/quizzes'
-import useToken from './components/useToken'
+import Start from './pages/start';
+import Login from './pages/login';
+import Register from './pages/register';
+import Home from './pages/home';
+import Navbar from './components/navbar';
+import Quizzes from './pages/quizzes';
 import Play from "./pages/play";
-
 
 function App() {
   const { token, setToken } = useToken();
 
-  if (!token) { // Set the homepage to the login page prior to user login
-    return (
-      <div style={{ textAlign: "center" }}>
-        <Routes>
-          <Route path="/" element={<Register setToken={setToken} />} />
-          <Route path="/login" element={<Login setToken={setToken} />} />
-          <Route path="/register" element={<Register setToken={setToken} />} />
-        </Routes>
-      </div>
-    )
-  }
-
   return (
-  <div style={{ textAlign: "center" }}>
-    <Navbar />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/start" element={<Start />} />
-      <Route path="/login" element={<Login setToken={setToken} />} />
-      <Route path="/register" element={<Register setToken={setToken} />} />
-      <Route path="/quiz" element={<Quizzes />} />
-      <Route path="/play" element={<Play />} />
-    </Routes>
-  </div>
-  )
+    <div style={{ textAlign: "center" }}>
+      {token && <Navbar />}
+
+      <Routes>
+        {token ? (
+          // Routes for authenticated users
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/start" element={<Start />} />
+            <Route path="/quiz" element={<Quizzes />} />
+            <Route path="/play" element={<Play />} />
+
+            {/* Redirect authenticated users away from login/register */}
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/register" element={<Navigate to="/" replace />} />
+          </>
+        ) : (
+          // Routes for non-authenticated users
+          <>
+            <Route path="/" element={<Login setToken={setToken} />} />
+            <Route path="/login" element={<Login setToken={setToken} />} />
+            <Route path="/register" element={<Register setToken={setToken} />} />
+
+            {/* Redirect unauthenticated users away from protected routes */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        )}
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;
