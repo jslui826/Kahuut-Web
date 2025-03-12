@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 async function loginUser(credentials) {
     return fetch('http://localhost:4000/login', {
@@ -10,6 +11,7 @@ async function loginUser(credentials) {
 }
 
 function Login({ setToken }) {
+    const navigate = useNavigate()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('')
@@ -21,6 +23,7 @@ function Login({ setToken }) {
         if (response.token) {
             setToken(response.token)
             setError('')
+            navigate('/')
         } else if (response.error) {
             setError(response.error)
         } else {
