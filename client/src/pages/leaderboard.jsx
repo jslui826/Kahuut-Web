@@ -1,68 +1,79 @@
-import { people } from '../data/data.js'
+import { useState, useEffect } from "react";
+
 
 function Leaderboard() {
-    const listItems = people.map(person =>
-        <tr>
-            <th>
-            <label>
-                <h3>{person.id + 1}</h3>
-            </label>
-            </th>
-            <td>
-            <div className="flex items-center gap-3">
-                <div className="avatar">
-                <div className="mask mask-squircle h-12 w-12">
-                    <img
-                    src={person.img}
-                    alt="Avatar Tailwind CSS Component" />
-                </div>
-                </div>
-                <div>
-                <div className="font-bold">{person.name}</div>
-                </div>
-            </div>
-            </td>
-            <td>
-            {person.team}
-            <br />
-            </td>
-            <td>{person.score}</td>
-        </tr>
-    )
+   const [players, setPlayers] = useState([]);
+   useEffect(() => {
+       const fetchLeaderboard = async () => {
+           try {
+               const response = await fetch("http://localhost:4000/api/leaderboard/top10");
+               const data = await response.json();
 
-    return(
-        <div className="overflow-x-auto">
-            <h3>______________________________</h3>
-            <h1>Leaderboard</h1>
-            <a href="../quizzes" className="text-l text-gray-600">Dashboard</a>
-        <table className="table">
-            {/* head */}
-            <thead>
-            <tr>
-                <th>
-                <label>
-                    <h2>Rank</h2>
-                </label>
-                </th>
-                <th>Name</th>
-                <th>Team</th>
-                <th>Score</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>{listItems}</tbody>
-            <tfoot>
-            <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Team</th>
-                <th>Score</th>
-                <th></th>
-            </tr>
-            </tfoot>
-        </table>
-        </div>
-    )
+
+               const sortedPlayers = data.sort((a, b) => b.score - a.score);
+               setPlayers(sortedPlayers);
+           } catch (error) {
+               console.error("Error fetching leaderboard:", error);
+           }
+       };
+
+
+       fetchLeaderboard();
+   }, []);
+   return (
+       <div className="overflow-x-auto">
+           <h3>______________________________</h3>
+           <h1>Leaderboard</h1>
+           <a href="../quizzes" className="text-l text-gray-600">Dashboard</a>
+
+
+           <table className="table">
+               {/* Table Head */}
+               <thead>
+                   <tr>
+                       <th><h2>Rank</h2></th>
+                       <th>Name</th>
+                       <th>Team</th>
+                       <th>Score</th>
+                   </tr>
+               </thead>
+
+
+               {/* Table Body */}
+               <tbody>
+                   {players.map((player, index) => (
+                       <tr key={player.id}>
+                           <th><h3>{index + 1}</h3></th>
+                           <td>
+                               <div className="flex items-center gap-3">
+                                   <div className="avatar">
+                                       <div className="mask mask-squircle h-12 w-12">
+                                           <img src={player.img} alt="Avatar" />
+                                       </div>
+                                   </div>
+                                   <div className="font-bold">{player.name}</div>
+                               </div>
+                           </td>
+                           <td>{player.team}</td>
+                           <td>{player.score}</td>
+                       </tr>
+                   ))}
+               </tbody>
+
+
+               {/* Table Footer */}
+               <tfoot>
+                   <tr>
+                       <th></th>
+                       <th>Name</th>
+                       <th>Team</th>
+                       <th>Score</th>
+                   </tr>
+               </tfoot>
+           </table>
+       </div>
+   );
 }
 
-export default Leaderboard
+
+export default Leaderboard;

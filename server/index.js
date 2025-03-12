@@ -245,6 +245,40 @@ app.get("/quizzes/search", async (req, res) => {
   }
 });
 
+//Leaderboard
+app.get("/api/leaderboard/top10", async (req, res) => {
+  try {
+      const result = await pool.query(
+          `SELECT
+              p.person_id,
+              p.team,
+              p.score,
+              encode(p.pfp, 'base64') AS pfp,
+              SPLIT_PART(pe.email, '@', 1) AS username
+          FROM profile p
+          JOIN persons pe ON p.person_id = pe.person_id
+          ORDER BY p.score DESC
+          LIMIT 10;`
+      );
+
+
+      const players = result.rows.map(player => ({
+          id: player.person_id,
+          name: player.username,
+          team: player.team,
+          score: player.score,
+          img: player.pfp ? `data:image/png;base64,${player.pfp}` : "/assets/default_pfp.png" // need default here lol
+      }));
+
+
+      res.json(players);
+  } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 module.exports = app;
 
 //upload images per question
