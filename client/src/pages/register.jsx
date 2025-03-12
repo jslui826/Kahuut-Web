@@ -103,8 +103,12 @@ function Register({ setToken }) {
   );
 }
 
-export default Register
-
 Register.propTypes = {
+<<<<<<< HEAD
   setToken: PropTypes.func.isRequired,
 };
+=======
+    setToken: PropTypes.func.isRequired
+}
+export default Register
+>>>>>>> 7da778b810b2c29e15dc1d706842c6288dbe818a
