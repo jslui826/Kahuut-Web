@@ -190,59 +190,62 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
 });
 
 
-// Gets quizzes from db
+// Get all quizzes with questions and answers
 app.get("/quizzes", async (req, res) => {
   try {
-    const quizzes = await pool.query("SELECT * FROM quizzes")
+      const quizzes = await pool.query(`
+          SELECT q.quiz_id, q.title, q.creator_id, p.email AS creator_email,
+                 encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
+          FROM quizzes q
+          JOIN persons p ON q.creator_id = p.person_id
+      `);
 
-    const quizzesWithDetails = await Promise.all(
-      quizzes.rows.map(async (quiz) => {
-        // Get questions and answers
-        const questionsResult = await pool.query(
-          "SELECT * FROM questions WHERE quiz_id = $1",
-          [quiz.quiz_id]
-        )
+      const quizzesWithDetails = await Promise.all(
+          quizzes.rows.map(async (quiz) => {
+              const questionsResult = await pool.query(`
+                  SELECT question, answer1, answer2, answer3, answer4
+                  FROM qa
+                  WHERE quiz_id = $1
+              `, [quiz.quiz_id]);
 
-        const questionsWithAnswers = await Promise.all(
-          questionsResult.rows.map(async (q) => {
-            const answersResult = await pool.query(
-              "SELECT * FROM answers WHERE question_id = $1",
-              [q.question_id]
-            )
-            return { ...q, answers: answersResult.rows }
+              return { 
+                  ...quiz, 
+                  questions: questionsResult.rows
+              };
           })
-        )
+      );
 
-        return { ...quiz, questions: questionsWithAnswers }
-      })
-    )
-
-    res.json(quizzesWithDetails)
+      res.json(quizzesWithDetails);
   } catch (err) {
-    console.error(err.message)
-    res.status(500).send("Server Error")
+      console.error(err.message);
+      res.status(500).send("Server Error");
   }
-})
+});
 
-// Search bar feature
+// Search bar feature (searching by quiz title)
 app.get("/quizzes/search", async (req, res) => {
   try {
-    const searchQuery = req.query.query
-    if (!searchQuery) {
-      return res.status(400).json({ error: "Search query is required" })
-    }
+      const searchQuery = req.query.query;
+      if (!searchQuery) {
+          return res.status(400).json({ error: "Search query is required" });
+      }
 
-    const quizzes = await pool.query(
-      "SELECT * FROM quizzes WHERE title ILIKE $1 OR description ILIKE $1",
-      [`%${searchQuery}%`]
-    )
+      const quizzes = await pool.query(`
+          SELECT q.quiz_id, q.title, q.creator_id, p.email AS creator_email,
+                 encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
+          FROM quizzes q
+          JOIN persons p ON q.creator_id = p.person_id
+          WHERE q.title ILIKE $1
+      `, [`%${searchQuery}%`]);
 
-    res.json(quizzes.rows)
+      res.json(quizzes.rows);
   } catch (err) {
-    console.error(err.message)
-    res.status(500).send("Server Error")
+      console.error(err.message);
+      res.status(500).send("Server Error");
   }
-})
+});
+
+module.exports = app;
 
 //upload images per question
 
