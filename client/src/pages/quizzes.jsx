@@ -70,6 +70,30 @@ const QuizPage = () => {
         }
 
         setIsUploading(true);
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch("http://localhost:4000/uploadPfp", {
+                method: "POST",
+                body: JSON.stringify(imageFile),
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const result = await response.json();
+            console.log("Server Response: ", result);
+
+            if (response.ok) {
+                alert("Image uploaded successfully!");
+            } else {
+                alert("Failed to upload image");
+            }
+        } catch (error) {
+            console.error("Error uploading image: ", error);
+            alert("Error uploading image");
+        } finally {
+            setIsUploading(false);
+        }
     }
 
     return (
