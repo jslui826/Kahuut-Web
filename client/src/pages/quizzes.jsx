@@ -144,6 +144,14 @@ const QuizPage = () => {
                     <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
                 </ul>
             </div>
+            <div className="sort-section">
+                <h3>Sort Quizzes</h3>
+                <div className="sort-buttons">
+                    <button>Default</button>
+                    <button>By Favorites</button>
+                    <button>By Me</button>
+                </div>
+            </div>
 
             <div className="main-content">
                 <h1>Select Your Quiz</h1>

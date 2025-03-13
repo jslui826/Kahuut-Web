@@ -27,7 +27,7 @@ const Play = () => {
                 }
                 const data = await response.json();
                 setQuestions(data);
-                shuffleOptions(data[0]); // Shuffle first question
+                shuffleOptions(data[0]); 
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -199,6 +199,11 @@ const Play = () => {
                     <button onClick={() => window.location.reload()} className="restart-button">Play Again</button>
                     <button onClick={() => navigate("/quiz")} className="quizzes-button">
                         Back to Quizzes
+                    </button>
+                    <button 
+                        onClick={() => console.log("Quiz favorited!")} 
+                        className="favorite-button"
+                            >Favorite
                     </button>
                 </div>
             )}
