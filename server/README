@@ -13,3 +13,6 @@ python script.py /path/to/pdf /path/to/.env
 
 Errors due to architecture of machine running bcrypt can occur. Solution is to just use the setup.sh since it removes
 the node modules.
+
+Caching on the server so additional database queries are not necessary. Requires redis-server to start.
+Added to setup.sh

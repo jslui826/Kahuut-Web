@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Carousel from "./carousel"; 
+import Carousel from "./carousel";
 import "../css/quizzes.css";
 import pfp from "/assets/default_pfp.jpg"
+
 
 const token = localStorage.getItem("token");
 const defaultMusic = "/assets/ZeldaMain.mp3";
@@ -13,6 +14,7 @@ const musicFiles = [
     "07. Mipha's Theme.mp3",
     "ZeldaMain.mp3",
 ];
+
 
 const QuizPage = () => {
     const [quizzes, setQuizzes] = useState([]);
@@ -27,12 +29,15 @@ const QuizPage = () => {
     const [loading, setLoading] = useState(true);
 
 
+
+
     const displayLimit = 5;
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
+
     const fetchQuizzes = async (query = "") => {
-        setLoading(true); 
+        setLoading(true);
         try {
             const url = query
                 ? `http://localhost:4000/quizzes/search?query=${query}`
@@ -44,17 +49,19 @@ const QuizPage = () => {
         } catch (error) {
             console.error("Error fetching quizzes:", error);
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
-    
+
     useEffect(() => {
         fetchQuizzes();
     }, []);
 
+
     const handleSearchInput = (e) => {
         setSearchQuery(e.target.value);
     };
+
 
     const handleSearchKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -67,36 +74,37 @@ const QuizPage = () => {
         }
     };
 
+
     const handleFileUpload = async () => {
         if (!imageFile) {
             alert("Please upload an image first");
             return;
         }
-        
+
         setIsUploading(true);
         const token = localStorage.getItem("token"); // Retrieve JWT token
-        
+
         // 1️⃣ Build FormData
         const formData = new FormData();
         formData.append("pfp", imageFile); // "pfp" must match the backend key
-        
+
         try {
             // 2️⃣ Send POST request with FormData
             const response = await fetch("http://localhost:4000/uploadPfp", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`, // Ensure token is attached
-            },
-            body: formData, // FormData instead of JSON
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`, // Ensure token is attached
+                },
+                body: formData, // FormData instead of JSON
             });
-        
+
             const result = await response.json();
             console.log("Server Response:", result);
-        
+
             if (response.ok) {
-            alert("Image uploaded successfully!");
+                alert("Image uploaded successfully!");
             } else {
-            alert(`Failed to upload image: ${result.error}`);
+                alert(`Failed to upload image: ${result.error}`);
             }
         } catch (error) {
             console.error("Error uploading image:", error);
@@ -105,7 +113,6 @@ const QuizPage = () => {
             setIsUploading(false);
         }
     }
-      
 
     return (
         <div className="quiz-page">
@@ -113,40 +120,11 @@ const QuizPage = () => {
                 Your browser does not support the audio element.
             </audio>
 
-            {showMusicPopup && (
-                <div className="music-popup">
-                    <div className="popup-content">
-                        <h2>Select Background Music</h2>
-                        <ul>
-                            {musicFiles.map((file, index) => (
-                                <li key={index} onClick={() => setCurrentMusic(`/assets/${file}`)}>
-                                    🎵 {file.replace(".mp3", "")}
-                                </li>
-                            ))}
-                        </ul>
-                        <button onClick={() => setShowMusicPopup(false)}>Close</button>
-                    </div>
-                </div>
-            )}
-
-            {showImageUpload && (
-                <div className="pfp-popup">
-                    <div className="popup-content-pfp">
-                        <h2>Change Profile Picture</h2>
-                        <input type="file" className="file-input file-input-bordered file-input-info w-full max-w-xs" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])}/>
-                            <button onClick={handleFileUpload} disabled={isUploading}>
-                                {isUploading ? "Uploading..." : "Submit Image"}
-                            </button>
-                        <button onClick={() => setShowImageUpload(false)}>Close</button>
-                    </div>
-                </div>
-            )}
-
             <div className="sidebar">
                 <div className="profile-section">
                     <div className="avatar">
                         <div className="ring-pink-300 ring-offset-base-100 w-24 rounded-full ring">
-                            <img src={pfp} alt="User"/>
+                            <img src={pfp} alt="User" />
                         </div>
                     </div>
                 </div>
@@ -168,7 +146,7 @@ const QuizPage = () => {
                         placeholder="Search..."
                         value={searchQuery}
                         onChange={handleSearchInput}
-                        onKeyDown={handleSearchKeyDown} 
+                        onKeyDown={handleSearchKeyDown}
                     />
                 </div>
                 {loading ? (
@@ -178,22 +156,35 @@ const QuizPage = () => {
                     </div>
                 ) : (
                     <>
-                    <Carousel
-                        quizzes={quizzes}
-                        selectedIndex={selectedQuizIndex}
-                        setSelectedIndex={setSelectedQuizIndex}
-                        setSelectedQuiz={setSelectedQuiz}
-                        displayLimit={displayLimit}
-                    />
-                    <footer className="footer m:footer-horizontal bg-base-content text-base-content p-2 bg-opacity-75">
-                        <aside></aside>
-                        <button className="flex items-center btn btn-outline btn-info">Default</button>
-                        <button className="flex items-center btn btn-outline btn-success">By Favorites</button>
-                        <button className="flex items-center btn btn-outline btn-info">By Me</button>
-                    </footer>
+                        <Carousel
+                            quizzes={quizzes}
+                            selectedIndex={selectedQuizIndex}
+                            setSelectedIndex={setSelectedQuizIndex}
+                            setSelectedQuiz={setSelectedQuiz}
+                            displayLimit={displayLimit}
+                        />
+                        <footer className="footer m:footer-horizontal bg-base-content text-base-content p-2 bg-opacity-75">
+                            <aside></aside>
+                            <button className="flex items-center btn btn-outline btn-info">Default</button>
+                            <button className="flex items-center btn btn-outline btn-success">By Favorites</button>
+                            <button className="flex items-center btn btn-outline btn-info">By Me</button>
+                        </footer>
                     </>
                 )}
             </div>
+
+            {showImageUpload && (
+                <div className="pfp-popup">
+                    <div className="popup-content-pfp">
+                        <h2>Change Profile Picture</h2>
+                        <input type="file" className="file-input file-input-bordered file-input-info w-full max-w-xs" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+                        <button onClick={handleFileUpload} disabled={isUploading}>
+                            {isUploading ? "Uploading..." : "Submit Image"}
+                        </button>
+                        <button onClick={() => setShowImageUpload(false)}>Close</button>
+                    </div>
+                </div>
+            )}
 
             {selectedQuiz && (
                 <div className="quiz-popup">
@@ -208,5 +199,6 @@ const QuizPage = () => {
         </div>
     );
 };
+
 
 export default QuizPage;

@@ -7,12 +7,14 @@ const fileUpload = require('express-fileupload')
 const pool = require('./db')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
+const redis = require("redis");
 
 require('dotenv').config()
 
 
 const app = express()
+const client = redis.createClient();
+client.connect().catch(console.error);
 const port = process.env.PORT || 4000
 
 
@@ -134,7 +136,11 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
              return res.status(500).json({ error: 'Parsing and storing failed.', details: parseStderr || "Unknown error" });
          }
           console.log("✅ Parsing Output Completed Successfully!");
-         console.log("📄 Parser Output:", parseStdout);
+          console.log("📄 Parser Output:", parseStdout);
+          client.del("quizzes_all")
+            .then(() => console.log("🗑️ Redis cache cleared for quizzes_all"))
+            .catch(err => console.error("⚠️ Error clearing Redis cache:", err));
+
           res.status(201).json({ message: "Quiz successfully generated and stored!" });
           setTimeout(() => {
            try {
@@ -168,8 +174,6 @@ app.post('/quizzes/upload', authenticateToken, async (req, res) => {
       
      }
  ); 
-
-
  })
 })
 
@@ -231,7 +235,7 @@ app.post('/signup', async (req, res) => {
    const token = jwt.sign(
      { person_id, email },
      process.env.JWT_SECRET,
-     { expiresIn: '1h' }
+     { expiresIn: '3h' }
    )
 
 
@@ -294,21 +298,31 @@ app.post('/login', async (req, res) => {
 
 
 
-
-// Get all quizzes
+// Get all quizzes (with Redis caching)
 app.get("/quizzes", async (req, res) => {
- try {
-     const quizzes = await pool.query(`
-         SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
-         FROM quizzes
-     `);
+  try {
+      // 1️⃣ Check Redis cache first
+      const cachedData = await client.get("quizzes_all");
+      if (cachedData) {
+          console.log("✅ Serving from Redis Cache");
+          return res.json(JSON.parse(cachedData));
+      }
 
+      // 2️⃣ Fetch from PostgreSQL if cache is empty
+      console.log("🚀 Fetching from Database");
+      const quizzes = await pool.query(`
+          SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
+          FROM quizzes
+      `);
 
-     res.json(quizzes.rows); // No additional queries for questions
- } catch (err) {
-     console.error(err.message);
-     res.status(500).send("Server Error");
- }
+      // 3️⃣ Store data in Redis with expiration (10 minutes)
+      await client.set("quizzes_all", JSON.stringify(quizzes.rows), { EX: 600 });
+
+      res.json(quizzes.rows);
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+  }
 });
 
 
@@ -497,6 +511,21 @@ app.get("/my_quizzes", authenticateToken, async (req, res) => {
  }
 })
 
+// Fetch favorites
+app.get("/favorites", async (req, res) => {
+  try {
+      const result = await pool.query(`
+          SELECT quiz_id, COUNT(*) AS favorite_count
+          FROM favorites
+          GROUP BY quiz_id
+      `);
+      res.json(result.rows);
+  } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+ });
+ 
 
 // Fetch all quizzes favorited by the current user
 app.get("/my_favorites", authenticateToken, async (req, res) => {
