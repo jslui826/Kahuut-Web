@@ -511,6 +511,21 @@ app.get("/my_quizzes", authenticateToken, async (req, res) => {
  }
 })
 
+// Fetch favorites
+app.get("/favorites", async (req, res) => {
+  try {
+      const result = await pool.query(`
+          SELECT quiz_id, COUNT(*) AS favorite_count
+          FROM favorites
+          GROUP BY quiz_id
+      `);
+      res.json(result.rows);
+  } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+ });
+ 
 
 // Fetch all quizzes favorited by the current user
 app.get("/my_favorites", authenticateToken, async (req, res) => {
