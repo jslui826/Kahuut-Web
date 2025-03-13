@@ -21,5 +21,5 @@ if [ -f "$SUBPROCESS_DIR/requirements.txt" ]; then
 else
     echo "No requirements.txt found. Skipping dependency installation."
 fi
-
+redis-server
 nodemon dev
