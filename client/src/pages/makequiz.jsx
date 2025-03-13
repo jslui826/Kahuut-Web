@@ -28,7 +28,7 @@ const MakeQuiz = () => {
         console.log("📤 FormData before sending:");
         for (let pair of formData.entries()) {
             console.log(pair[0], pair[1]);
-    }
+        }
 
         try {
             const response = await fetch("http://localhost:4000/quizzes/upload", {

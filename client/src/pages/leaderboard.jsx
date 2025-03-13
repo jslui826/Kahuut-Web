@@ -48,7 +48,7 @@ function Leaderboard() {
                 <thead>
                     <tr>
                         <th><h1>Rank</h1></th>
-                        <th><h1>Team</h1></th>
+                        <th><h1>Team Name</h1></th>
                         <th><h1>Score</h1></th>
                     </tr>
                 </thead>
@@ -75,7 +75,7 @@ function Leaderboard() {
                 <tfoot>
                     <tr>
                         <th><h1>Rank</h1></th>
-                        <th><h1>Name</h1></th>
+                        <th><h1>Team Name</h1></th>
                         <th><h1>Score</h1></th>
                     </tr>
                 </tfoot>
