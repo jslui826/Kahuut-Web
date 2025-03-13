@@ -28,9 +28,6 @@ const QuizPage = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [loading, setLoading] = useState(true);
 
-
-
-
     const displayLimit = 5;
     const audioRef = useRef(null);
     const navigate = useNavigate();

@@ -8,7 +8,6 @@ import Quizzes from './pages/quizzes';
 import Play from "./pages/play";
 import Leaderboard from "./pages/leaderboard";
 import MakeQuiz from "./pages/makequiz";
-import Profile from "./pages/profile";
 
 function App() {
   const { token, setToken } = useToken();
