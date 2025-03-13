@@ -144,7 +144,11 @@ const QuizPage = () => {
 
             <div className="sidebar">
                 <div className="profile-section">
-                    <img src={pfp} alt="User" className="profile-icon" />
+                    <div className="avatar">
+                        <div className="ring-pink-300 ring-offset-base-100 w-24 rounded-full ring">
+                            <img src={pfp} alt="User"/>
+                        </div>
+                    </div>
                 </div>
                 <ul className="menu">
                     <li onClick={() => setShowImageUpload(true)}>Profile</li>

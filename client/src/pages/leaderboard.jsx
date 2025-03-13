@@ -8,20 +8,21 @@ function Leaderboard() {
     const [players, setPlayers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [showTeams, setShowTeams] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading1, setIsLoading1] = useState(false);
+    const [isLoading2, setIsLoading2] = useState(false);
     const navigate = useNavigate();
     const images = [team1, team2, team3]; // Team images based on rankings
 
     useEffect(() => {
         const fetchIndividualLeaderboard = async () => {
             try {
-                setIsLoading(true);
+                setIsLoading1(true);
                 const response = await fetch("http://localhost:4000/api/leaderboard/top10");
                 const data = await response.json();
 
 
                 const sortedPlayers = data.sort((a, b) => b.score - a.score);
-                setIsLoading(false);
+                setIsLoading1(false);
                 setPlayers(sortedPlayers);
             } catch (error) {
                 console.error("Error fetching individual leaderboard: ", error);
@@ -34,12 +35,12 @@ function Leaderboard() {
     useEffect(() => {
         const fetchTeamLeaderboard = async () => {
             try {
-                setIsLoading(true);
+                setIsLoading2(true);
                 const response = await fetch("http://localhost:4000/api/leaderboard/teams");
                 const data = await response.json();
 
                 const sortedTeams = data.sort((a, b) => b.score - a.score);
-                setIsLoading(false);
+                setIsLoading2(false);
                 setTeams(sortedTeams);
             } catch (error) {
                 console.error("Error fetching team leaderboard: ", error);
@@ -52,7 +53,7 @@ function Leaderboard() {
     // Either show loading wheel, individual leaderboard, or team leaderboard
     return (
         <div>
-        { isLoading ? 
+        { isLoading1 || isLoading2 ? 
         <span className="loading loading-spinner loading-lg flex items-center justify-center h-screen loader m-auto"></span> : 
         <div className="overflow-x-auto">
             <div className="font-bold"><h1 style={{ marginTop: 50 }}>🏆Leaderboard🏆</h1></div>
