@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import team1 from "/assets/genz.jpg";
+import team2 from "/assets/hyperventilate.png";
+import team3 from "/assets/crymoji.png";
 
 function Leaderboard() {
     const [players, setPlayers] = useState([]);
@@ -7,6 +10,7 @@ function Leaderboard() {
     const [showTeams, setShowTeams] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const images = [team1, team2, team3]; // Team images based on rankings
 
     useEffect(() => {
         const fetchIndividualLeaderboard = async () => {
@@ -45,6 +49,7 @@ function Leaderboard() {
         fetchTeamLeaderboard();
     }, []);
 
+    // Either show loading wheel, individual leaderboard, or team leaderboard
     return (
         <div>
         { isLoading ? 
@@ -79,7 +84,7 @@ function Leaderboard() {
                                 <div className="flex items-center gap-3">
                                     <div className="avatar">
                                         <div className="mask mask-squircle h-24 w-24">
-                                            <img src={team.img} alt="Avatar" />
+                                            <img src={images[index]} alt="Avatar" />
                                         </div>
                                     </div>
                                     <div className="font-bold"><h1>{team.team}</h1></div>
