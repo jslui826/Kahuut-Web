@@ -120,6 +120,22 @@ const QuizPage = () => {
                 Your browser does not support the audio element.
             </audio>
 
+            {showMusicPopup && (
+                <div className="music-popup">
+                    <div className="popup-content">
+                        <h2>Select Background Music</h2>
+                        <ul>
+                            {musicFiles.map((file, index) => (
+                                <li key={index} onClick={() => setCurrentMusic(`/assets/${file}`)}>
+                                    🎵 {file.replace(".mp3", "")}
+                                </li>
+                            ))}
+                        </ul>
+                        <button onClick={() => setShowMusicPopup(false)}>Close</button>
+                    </div>
+                </div>
+            )}
+
             <div className="sidebar">
                 <div className="profile-section">
                     <div className="avatar">
