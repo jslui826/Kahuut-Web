@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: Helvetica;
 }
 
 .quiz-page {
@@ -36,7 +36,9 @@
     padding: 0;
     margin: 0;
 }
-
+.menu li {
+    font-size: 1.3rem;
+}
 .menu li {
     padding: 10px 15px;
     margin: 5px 0;
@@ -61,7 +63,7 @@
 
 h1 {
     margin-bottom: 20px;
-    font-size: 2.5rem;
+    font-size: 3rem;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
 }
 
