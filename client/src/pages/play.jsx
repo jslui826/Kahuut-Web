@@ -256,7 +256,6 @@ const Play = () => {
                </div>
            )}
 
-
            {stage === "final" && (
                <div className="overlay final-screen">
                    <video autoPlay loop className="background-video">
