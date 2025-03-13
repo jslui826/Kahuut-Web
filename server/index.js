@@ -537,7 +537,7 @@ app.get("/is_favorite/:quizId", authenticateToken, async (req, res) => {
 // Upload Profile Picture
 app.post("/uploadPfp", authenticateToken, async (req, res) => {
  try {
-   const userId = req.user.person_id;
+   const userId = req.user.userId;
 
 
    if (!req.files || !req.files.pfp) {
