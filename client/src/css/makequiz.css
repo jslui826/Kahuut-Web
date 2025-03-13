@@ -37,6 +37,21 @@
     outline: none;
 }
 
+.makequiz-container input[type="text"] {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    outline: none;
+}
+
+.makequiz-container input[type="text"]::placeholder {
+    color: #888;
+}
+
 .makequiz-container button {
     margin-top: 20px;
     padding: 10px 20px;

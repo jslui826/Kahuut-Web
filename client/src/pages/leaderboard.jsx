@@ -9,7 +9,7 @@ function Leaderboard() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchLeaderboard = async () => {
+        const fetchIndividualLeaderboard = async () => {
             try {
                 setIsLoading(true);
                 const response = await fetch("http://localhost:4000/api/leaderboard/top10");
@@ -20,11 +20,29 @@ function Leaderboard() {
                 setIsLoading(false);
                 setPlayers(sortedPlayers);
             } catch (error) {
-                console.error("Error fetching leaderboard:", error);
+                console.error("Error fetching individual leaderboard: ", error);
             }
         };
 
-        fetchLeaderboard();
+        fetchIndividualLeaderboard();
+    }, []);
+
+    useEffect(() => {
+        const fetchTeamLeaderboard = async () => {
+            try {
+                setIsLoading(true);
+                const response = await fetch("http://localhost:4000/api/leaderboard/teams");
+                const data = await response.json();
+
+                const sortedTeams = data.sort((a, b) => b.score - a.score);
+                setIsLoading(false);
+                setTeams(sortedTeams);
+            } catch (error) {
+                console.error("Error fetching team leaderboard: ", error);
+            }
+        };
+
+        fetchTeamLeaderboard();
     }, []);
 
     return (
@@ -48,26 +66,26 @@ function Leaderboard() {
                 <thead>
                     <tr>
                         <th><h1>Rank</h1></th>
-                        <th><h1>Team</h1></th>
+                        <th><h1>Team Name</h1></th>
                         <th><h1>Score</h1></th>
                     </tr>
                 </thead>
                 {/* Table Body */}
                 <tbody>
-                    {players.map((player, index) => (
-                        <tr key={player.id}>
+                    {teams.map((team, index) => (
+                        <tr key={index}>
                             <th><h1>{index + 1}</h1></th>
                             <td>
                                 <div className="flex items-center gap-3">
                                     <div className="avatar">
                                         <div className="mask mask-squircle h-24 w-24">
-                                            <img src={player.img} alt="Avatar" />
+                                            <img src={team.img} alt="Avatar" />
                                         </div>
                                     </div>
-                                    <div className="font-bold"><h1>{player.name}</h1></div>
+                                    <div className="font-bold"><h1>{team.team}</h1></div>
                                 </div>
                             </td>
-                            <td><h1>{player.score}</h1></td>
+                            <td><h1>{team.totalScore}</h1></td>
                         </tr>
                     ))}
                 </tbody>
@@ -75,7 +93,7 @@ function Leaderboard() {
                 <tfoot>
                     <tr>
                         <th><h1>Rank</h1></th>
-                        <th><h1>Name</h1></th>
+                        <th><h1>Team Name</h1></th>
                         <th><h1>Score</h1></th>
                     </tr>
                 </tfoot>

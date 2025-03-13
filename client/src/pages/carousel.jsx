@@ -6,9 +6,8 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
         if (selectedIndex > 0) {
             setSelectedIndex((prev) => prev - 1);
         }
-
-        if (selectedIndex % displayLimit === 0 && selectedIndex > 0) {
-            setSelectedIndex((prev) => Math.max(0, prev - displayLimit + 1));
+        if ((selectedIndex - 1) % displayLimit === displayLimit - 1 && selectedIndex > 0) {
+            setSelectedIndex((prev) => Math.max(0, prev - displayLimit));
         }
     };
 
@@ -16,13 +15,12 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
         if (selectedIndex < quizzes.length - 1) {
             setSelectedIndex((prev) => prev + 1);
         }
-
         if ((selectedIndex + 1) % displayLimit === 0 && selectedIndex < quizzes.length - 1) {
-            setSelectedIndex((prev) => Math.min(quizzes.length - 1, prev + 1));
+            setSelectedIndex((prev) => Math.min(quizzes.length - 1, prev ));
         }
     };
 
-    let start = Math.max(0, selectedIndex - (selectedIndex % displayLimit));
+    let start = Math.floor(selectedIndex / displayLimit) * displayLimit;
     let end = Math.min(quizzes.length, start + displayLimit);
     const visibleQuizzes = quizzes.slice(start, end);
 

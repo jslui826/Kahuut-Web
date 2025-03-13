@@ -28,7 +28,7 @@ const MakeQuiz = () => {
         console.log("📤 FormData before sending:");
         for (let pair of formData.entries()) {
             console.log(pair[0], pair[1]);
-    }
+        }
 
         try {
             const response = await fetch("http://localhost:4000/quizzes/upload", {
@@ -75,10 +75,11 @@ const MakeQuiz = () => {
 
                 <label>Upload MP3 (Optional):</label>
                 <input type="file" accept="audio/mp3" onChange={(e) => setMp3File(e.target.files[0])} />
-
+                <div></div>
                 <button onClick={handleFileUpload} disabled={isUploading}>
                     {isUploading ? "Uploading..." : "Submit Quiz"}
                 </button>
+                <div></div>
                 <button className="back-btn" onClick={() => navigate("/quizzes")}>Go Back</button>
             </div>
         </div>

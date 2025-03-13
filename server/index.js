@@ -291,7 +291,7 @@ app.get("/quizzes/search", async (req, res) => {
   }
 })
 
-//Leaderboard
+//Individual Leaderboard
 app.get("/api/leaderboard/top10", async (req, res) => {
   try {
       const result = await pool.query(
@@ -324,6 +324,30 @@ app.get("/api/leaderboard/top10", async (req, res) => {
   }
 })
 
+// Leaderboard: Team rankings by total score
+app.get("/api/leaderboard/teams", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT 
+          team, 
+          SUM(score) AS total_score 
+       FROM profile 
+       GROUP BY team 
+       ORDER BY total_score DESC`
+    );
+
+    const teams = result.rows.map((team) => ({
+      team: team.team,
+      totalScore: team.total_score,
+    }));
+
+    res.json(teams);
+  } catch (error) {
+    console.error("Error fetching team leaderboard:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // Quizzes questions
 app.get("/quizzes/:quiz_id/questions", async (req, res) => {
   const { quiz_id } = req.params;
@@ -339,7 +363,7 @@ app.get("/quizzes/:quiz_id/questions", async (req, res) => {
  
       const formattedQuestions = questions.rows.map((q) => ({
           question: q.question,
-          options: [q.answer1, q.answer2, q.answer3, q.answer4].sort(() => Math.random() - 0.5), // Shuffle answers
+          options: [q.answer1, q.answer2, q.answer3, q.answer4], 
           correctAnswer: q.answer1, // Assume answer1 is the correct one
       }));
  
