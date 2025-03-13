@@ -25,7 +25,6 @@ function App() {
             <Route path="/play/:quizId" element={<Play />} /> {/* Route for Play */}
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/makequiz" element={<MakeQuiz />} />
-            <Route path="/profile" element={<Profile />} />
             
 
             {/* Redirect authenticated users away from login/register */}
