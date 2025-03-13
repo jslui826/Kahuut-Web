@@ -8,20 +8,11 @@ const pool = require('./db')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const redis = require("redis");
-
-
 require('dotenv').config()
-
-
-
-
 const app = express()
 const client = redis.createClient();
 client.connect().catch(console.error);
 const port = process.env.PORT || 4000
-
-
-
 
 // Middleware setup VERY IMPORTANT AND ERROR PRONE
 app.use(cors({
@@ -34,14 +25,7 @@ tempFileDir: '/tmp/'
 }));
 app.use(express.json())
 
-
-
-
 // Authenticate the session token created during registration or login
-
-
-
-
 function authenticateToken(req, res, next) {
 const authHeader = req.headers['authorization']
 const token = authHeader && authHeader.split(' ')[1]
@@ -54,23 +38,9 @@ jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
 })
 }
 
-
-
-
 module.exports = pool
 
-
-
-
 //ROUTES
-
-
-
-
-
-
-
-
 // Endpoint: Upload PDF and generate quiz
 app.post('/quizzes/upload', authenticateToken, async (req, res) => {
 const { title } = req.body
@@ -83,46 +53,25 @@ console.log("📢 Headers:", req.headers)
     console.log("📦 Received chunk:", chunk.length, "bytes")
 })
 
-
-
-
 req.on("end", () => {
     console.log("✅ Request fully received!")
 })
 
-
-
-
 console.log("📂 Files:", req.files)
 console.log("📜 Body:", req.body)
-
-
-
 
 if (!req.files || !req.files.pdf) {
     return res.status(400).json({ error: "No files were uploaded." })
 }
 
-
-
-
 const uploadsDir = path.join(__dirname, 'uploads')
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir)
-
-
-
 
 const pdfPath = path.join(uploadsDir, pdfFile.name)
 await pdfFile.mv(pdfPath)
 
-
-
-
 const imagePath = imageFile ? path.join(uploadsDir, imageFile.name) : null
 const audioPath = audioFile ? path.join(uploadsDir, audioFile.name) : null
-
-
-
 
 if (imageFile) {
   await imageFile.mv(imagePath);
@@ -138,9 +87,6 @@ if (imageFile) {
 }
  const creatorEmail = req.user.email
 
-
-
-
 // Call pdf_processing.py
 console.log("Executing pdf processing python subprocess")
 exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, stdout, stderr) => {
@@ -149,14 +95,8 @@ exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, 
     return res.status(500).json({ error: 'PDF processing failed.' });
   }
 
-
-
-
   const aiOutputPath = path.join(uploadsDir, 'ai_output.txt')
   fs.writeFileSync(aiOutputPath, stdout)
-
-
-
 
   // Call parsing_output.py
   console.log("Executing parsing of llm output")
@@ -214,86 +154,47 @@ exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, 
 })
 })
 
-
-
-
 // Signup endpoint
 app.post('/signup', async (req, res) => {
 const { email, password, team } = req.body // team is R, Y, or B
-
-
-
 
 if (!email || !password || !team) {
   return res.status(400).json({ error: "Email, password, and team are required." })
 }
 
-
-
-
 if (!['R', 'Y', 'B'].includes(team)) {
   return res.status(400).json({ error: "Invalid team selection." })
 }
 
-
-
-
 const client = await pool.connect() // Get a client from the pool
-
-
-
 
 try {
   await client.query('BEGIN') // Start transaction
 
-
-
-
   const existingUser = await client.query(
     'SELECT email FROM persons WHERE email = $1', [email]
   )
-
-
-
 
   if (existingUser.rows.length > 0) {
     await client.query('ROLLBACK')
     return res.status(409).json({ error: "Email already exists." })
   }
 
-
-
-
   const hashedPassword = await bcrypt.hash(password, 10)
-
-
-
 
   const newUser = await client.query(
     'INSERT INTO persons (email, password) VALUES ($1, $2) RETURNING person_id',
     [email, hashedPassword]
   )
 
-
-
-
   const person_id = newUser.rows[0].person_id
-
-
-
 
   await client.query(
     'INSERT INTO profile (person_id, team) VALUES ($1, $2)',
     [person_id, team]
   )
 
-
-
-
   await client.query('COMMIT') // Commit transaction
-
-
-
 
   const token = jwt.sign(
     { person_id, email },
@@ -301,14 +202,8 @@ try {
     { expiresIn: '3h' }
   )
 
-
-
-
   res.status(201).json({ token })
   console.log("User and Profile created")
-
-
-
 
 } catch (err) {
   await client.query('ROLLBACK') // Rollback transaction on error
@@ -319,19 +214,9 @@ try {
 }
 })
 
-
-
-
-
-
-
-
 // Login endpoint (corrected)
 app.post('/login', async (req, res) => {
 const { email, password } = req.body
-
-
-
 
 try {
   const userResult = await pool.query(
@@ -339,38 +224,22 @@ try {
     [email]
   )
 
-
-
-
   if (userResult.rows.length === 0) {
     return res.status(401).json({ error: 'User not found' })
   }
 
-
-
-
   const user = userResult.rows[0]
   const isMatch = await bcrypt.compare(password, user.password)
-
-
-
 
   if (!isMatch) {
     return res.status(401).json({ error: 'Invalid credentials' })
   }
-
-
-
 
   const token = jwt.sign(
     { userId: user.person_id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   )
-
-
-
-
   res.json({ token })
 } catch (err) {
   console.error(err)
@@ -378,11 +247,6 @@ try {
 }
 console.log("Successful login")
 })
-
-
-
-
-
 
 // Get all quizzes (with Redis caching)
 app.get("/quizzes", async (req, res) => {
@@ -393,30 +257,20 @@ app.get("/quizzes", async (req, res) => {
          console.log("✅ Serving from Redis Cache");
          return res.json(JSON.parse(cachedData));
      }
-
-
      // 2️⃣ Fetch from PostgreSQL if cache is empty
      console.log("🚀 Fetching from Database");
      const quizzes = await pool.query(`
          SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
          FROM quizzes
      `);
-
-
      // 3️⃣ Store data in Redis with expiration (10 minutes)
      await client.set("quizzes_all", JSON.stringify(quizzes.rows), { EX: 600 });
-
-
      res.json(quizzes.rows);
  } catch (err) {
      console.error(err.message);
      res.status(500).send("Server Error");
  }
 });
-
-
-
-
 // Search bar feature (searching by quiz title)
 app.get("/quizzes/search", async (req, res) => {
 try {
@@ -424,18 +278,11 @@ try {
     if (!searchQuery) {
         return res.status(400).json({ error: "Search query is required" })
     }
-
-
-
-
     const quizzes = await pool.query(`
         SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
         FROM quizzes
         WHERE title ILIKE $1
     `, [`%${searchQuery}%`])
-
-
-
 
     res.json(quizzes.rows)
 } catch (err) {
@@ -443,9 +290,6 @@ try {
     res.status(500).send("Server Error")
 }
 })
-
-
-
 
 //Individual Leaderboard
 app.get("/api/leaderboard/top10", async (req, res) => {
@@ -463,13 +307,6 @@ try {
         LIMIT 10`
     )
 
-
-
-
-
-
-
-
     const players = result.rows.map(player => ({
         id: player.person_id,
         name: player.username,
@@ -478,22 +315,12 @@ try {
         img: player.pfp ? `data:image/png;base64,${player.pfp}` : "/assets/default_pfp.jpg" // need default here lol
     }))
 
-
-
-
-
-
-
-
     res.json(players)
 } catch (error) {
     console.error("Error fetching leaderboard:", error)
     res.status(500).json({ error: "Internal Server Error" })
 }
 })
-
-
-
 
 // Leaderboard: Team rankings by total score
 app.get("/api/leaderboard/teams", async (req, res) => {
@@ -507,16 +334,10 @@ try {
      ORDER BY total_score DESC`
   );
 
-
-
-
   const teams = result.rows.map((team) => ({
     team: team.team,
     totalScore: team.total_score,
   }));
-
-
-
 
   res.json(teams);
 } catch (error) {
@@ -524,9 +345,6 @@ try {
   res.status(500).json({ error: "Internal Server Error" });
 }
 });
-
-
-
 
 // Quizzes questions
 app.get("/quizzes/:quiz_id/questions", async (req, res) => {
@@ -549,39 +367,17 @@ try {
 }
 });
 
-
-
-
-
-
-
-
 module.exports = app
-
-
-
 
 //upload images per question
 
-
-
-
 //upload music
 
-
-
-
 //user authentication
-
-
-
 
 app.listen(port, () => {
   console.log("server has started on port", port)
 })
-
-
-
 
 // Favorite/unfavorite a quiz
 app.post("/favorite", authenticateToken, async (req, res) => {
@@ -674,22 +470,15 @@ try {
 }
 })
 
-
 app.get("/is_favorite/:quizId", authenticateToken, async (req, res) => {
 try {
     const personId = req.user.userId;
     const { quizId } = req.params;
 
-
-
-
     const result = await pool.query(
         "SELECT 1 FROM favorites WHERE person_id = $1 AND quiz_id = $2",
         [personId, quizId]
     );
-
-
-
 
     res.json({ isFavorited: result.rows.length > 0 });
 } catch (error) {
@@ -698,40 +487,21 @@ try {
 }
 });
 
-
-
-
-
-
-
-
 // Upload Profile Picture
 app.post("/uploadPfp", authenticateToken, async (req, res) => {
 try {
   const userId = req.user.userId;
 
-
-
-
   if (!req.files || !req.files.pfp) {
     return res.status(400).json({ error: "Profile picture is required." });
   }
-
-
-
 
   const imageFile = req.files.pfp;
   const uploadsDir = path.join(__dirname, "uploads");
   if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-
-
-
   const imagePath = path.join(uploadsDir, imageFile.name);
   await imageFile.mv(imagePath);
-
-
-
 
   // Processing and store the image
   exec(`python3 python_subprocesses/image_processing.py "${userId}" "${imagePath}"`, async (error, stdout, stderr) => {
@@ -739,14 +509,7 @@ try {
       console.error(stderr);
       return res.status(500).json({ error: "Image processing failed." });
     }
-
-
-
-
     res.status(200).json({ message: "Profile picture updated successfully!" });
-
-
-
 
    });
 } catch (err) {
