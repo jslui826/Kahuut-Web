@@ -4,9 +4,6 @@ import Carousel from "./carousel";
 import "../css/quizzes.css";
 import pfp from "/assets/default_pfp.jpg"
 
-
-
-
 const token = localStorage.getItem("token");
 const defaultMusic = "/assets/ZeldaMain.mp3";
 const musicFiles = [
@@ -16,9 +13,6 @@ const musicFiles = [
    "07. Mipha's Theme.mp3",
    "ZeldaMain.mp3",
 ];
-
-
-
 
 const QuizPage = () => {
    const [quizzes, setQuizzes] = useState([]);
@@ -32,19 +26,9 @@ const QuizPage = () => {
    const [isUploading, setIsUploading] = useState(false);
    const [loading, setLoading] = useState(true);
 
-
-
-
-
-
-
-
    const displayLimit = 5;
    const audioRef = useRef(null);
    const navigate = useNavigate();
-
-
-
 
    const [currentTab, setCurrentTab] = useState("top"); // Default to "Top"
 
@@ -103,9 +87,6 @@ const QuizPage = () => {
        setSearchQuery(e.target.value);
    };
 
-
-
-
    const handleSearchKeyDown = (e) => {
        if (e.key === "Enter") {
            if (searchQuery.trim() === "") {
@@ -117,24 +98,18 @@ const QuizPage = () => {
        }
    };
 
-
-
-
    const handleFileUpload = async () => {
        if (!imageFile) {
            alert("Please upload an image first");
            return;
        }
 
-
        setIsUploading(true);
        const token = localStorage.getItem("token"); // Retrieve JWT token
-
 
        // 1️⃣ Build FormData
        const formData = new FormData();
        formData.append("pfp", imageFile); // "pfp" must match the backend key
-
 
        try {
            // 2️⃣ Send POST request with FormData
@@ -171,7 +146,6 @@ const QuizPage = () => {
                Your browser does not support the audio element.
            </audio>
 
-
            {showMusicPopup && (
                <div className="music-popup">
                    <div className="popup-content">
@@ -187,7 +161,6 @@ const QuizPage = () => {
                    </div>
                </div>
            )}
-
 
            <div className="sidebar">
                <div className="profile-section">
@@ -206,7 +179,6 @@ const QuizPage = () => {
                    <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
                </ul>
            </div>
-
 
            <div className="main-content">
                <h1>Select Your Quiz</h1>
