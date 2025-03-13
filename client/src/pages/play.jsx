@@ -199,7 +199,40 @@ const Play = () => {
     };
 
     const percentageScore = ((correctCount / questions.length) * 100).toFixed(2);
-
+        // Update user score when stage is "final"
+        useEffect(() => {
+            if (stage === "final") {
+                async function updateUserScore() {
+                    try {
+                        const token = localStorage.getItem("token");
+                        if (!token) {
+                            console.error("❌ No authentication token found.");
+                            return;
+                        }
+    
+                        const response = await fetch("http://localhost:4000/update-score", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({ correctCount }),
+                        });
+    
+                        if (!response.ok) {
+                            throw new Error("❌ Failed to update score");
+                        }
+    
+                        const data = await response.json();
+                        console.log("✅ Score updated successfully:", data.newScore);
+                    } catch (error) {
+                        console.error("❌ Error updating score:", error);
+                    }
+                }
+    
+                updateUserScore();
+            }
+        }, [stage]); // Trigger when `stage` changes to "final"
 
    return (
        <div className="quiz-container">

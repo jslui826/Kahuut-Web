@@ -602,3 +602,32 @@ app.post("/uploadPfp", authenticateToken, async (req, res) => {
  }
 });
 
+// Update user score after quiz completion
+app.post("/update-score", authenticateToken, async (req, res) => {
+  try {
+      const userId = req.user.userId; // Extract authenticated user ID
+      const { correctCount } = req.body;
+
+      if (correctCount === undefined || correctCount < 0) {
+          return res.status(400).json({ error: "Invalid score update request." });
+      }
+
+      // Update the profile table by adding the correctCount to the user's existing score
+      const updateScoreQuery = `
+          UPDATE profile
+          SET score = score + $1
+          WHERE person_id = $2
+          RETURNING score
+      `;
+      const result = await pool.query(updateScoreQuery, [correctCount, userId]);
+
+      if (result.rowCount === 0) {
+          return res.status(404).json({ error: "User profile not found." });
+      }
+
+      res.json({ message: "Score updated successfully!", newScore: result.rows[0].score });
+  } catch (error) {
+      console.error("Error updating score:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
