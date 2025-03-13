@@ -170,7 +170,7 @@ const QuizPage = () => {
                 </div>
                 {loading ? (
                     <div className="loading-container">
-                        <div className="spinner"></div>
+                        <div className="loading loading-spinner loading-lg flex items-center justify-center h-screen loader m-auto"></div>
                         <p>Loading quizzes...</p>
                     </div>
                 ) : (
