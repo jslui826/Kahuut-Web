@@ -172,7 +172,6 @@ const QuizPage = () => {
                </div>
                <ul className="menu">
                    <li onClick={() => setShowImageUpload(true)}>Profile</li>
-                   <li>Quizzes</li>
                    <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
                    <li onClick={() => setShowMusicPopup(true)}>Music</li>
                    <li onClick={() => navigate("/makequiz")}>Make Quiz</li>
