@@ -269,7 +269,7 @@ const Play = () => {
                        <source src="/assets/teto.mp4" type="video/mp4" />
                        Your browser does not support the video tag.
                    </video>
-                   <h2>Are you sure?</h2>
+                   <h2 className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Are you sure?</h2>
                    <p>{confirmTimeLeft} seconds</p>
                </div>
            )}
