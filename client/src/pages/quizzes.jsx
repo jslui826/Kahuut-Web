@@ -122,7 +122,6 @@ const QuizPage = () => {
                 <div className="pfp-popup">
                     <div className="popup-content-pfp">
                         <h2>Change Profile Picture</h2>
-                        <label>Select Image</label>
                         <input type="file" className="file-input file-input-bordered file-input-info w-full max-w-xs" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])}/>
                             <button onClick={handleFileUpload} disabled={isUploading}>
                                 {isUploading ? "Uploading..." : "Submit Image"}
