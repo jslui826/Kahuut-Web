@@ -374,7 +374,7 @@ app.get("/api/leaderboard/top10", async (req, res) => {
          name: player.username,
          team: player.team,
          score: player.score,
-         img: player.pfp ? `data:image/pngbase64,${player.pfp}` : "/assets/default_pfp.jpg" // need default here lol
+         img: player.pfp ? `data:image/png;base64,${player.pfp}` : "/assets/default_pfp.jpg" // need default here lol
      }))
 
 
