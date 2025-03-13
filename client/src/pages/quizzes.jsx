@@ -13,6 +13,7 @@ const musicFiles = [
     "07. Mipha's Theme.mp3",
     "ZeldaMain.mp3",
 ];
+
 const QuizPage = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
@@ -49,8 +50,13 @@ const QuizPage = () => {
     };
 
     const handleSearchKeyDown = (e) => {
-        if (e.key === "Enter" && searchQuery.trim() !== "") {
-            fetchQuizzes(searchQuery.trim());
+        if (e.key === "Enter") {
+            if (searchQuery.trim() === "") {
+                // If search bar is empty, fetch default quizzes
+                fetchQuizzes();
+            } else {
+                fetchQuizzes(searchQuery.trim());
+            }
         }
     };
 
@@ -98,7 +104,7 @@ const QuizPage = () => {
                         placeholder="Search..."
                         value={searchQuery}
                         onChange={handleSearchInput}
-                        onKeyDown={handleSearchKeyDown} // Trigger search on Enter
+                        onKeyDown={handleSearchKeyDown} // Search on Enter
                     />
                 </div>
 
