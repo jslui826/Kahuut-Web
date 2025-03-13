@@ -553,3 +553,21 @@ app.post("/update-score", authenticateToken, async (req, res) => {
      res.status(500).json({ error: "Internal Server Error" });
  }
 });
+app.get("/getPfp", authenticateToken, async (req, res) => {
+  try {
+      const userId = req.user.userId;
+      const result = await pool.query(
+          "SELECT encode(pfp, 'base64') AS pfp FROM profile WHERE person_id = $1",
+          [userId]
+      );
+
+      if (result.rows.length > 0 && result.rows[0].pfp) {
+          res.json({ pfp: result.rows[0].pfp });
+      } else {
+          res.json({ pfp: null }); // No profile picture exists
+      }
+  } catch (err) {
+      console.error("Error fetching profile picture:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
