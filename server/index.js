@@ -589,43 +589,30 @@ try {
   const personId = req.user.userId;
   const { quizId } = req.body;
 
-
-
-
   console.log("Decoded User:", req);
-
-
-
 
   if (!quizId) {
     return res.status(400).json({ message: "Missing quizId" });
   }
 
-
-
-
   // Check if quiz is already favorited
   const checkQuery = "SELECT * FROM favorites WHERE person_id = $1 AND quiz_id = $2";
   const checkResult = await pool.query(checkQuery, [personId, quizId]);
 
-
-
-
   if (checkResult.rows.length > 0) {
-    // If already favorited, remove it (unfavorite)
     await pool.query("DELETE FROM favorites WHERE person_id = $1 AND quiz_id = $2", [personId, quizId]);
+    await client.del(`my_favorites_${personId}`); // ✅ Invalidate cache
     return res.json({ message: "Quiz unfavorited", favorited: false });
-  } else {
-    // Otherwise, add it as a favorite
+} else {
     await pool.query("INSERT INTO favorites (person_id, quiz_id) VALUES ($1, $2)", [personId, quizId]);
+    await client.del(`my_favorites_${personId}`); // ✅ Invalidate cache
     return res.json({ message: "Quiz favorited", favorited: true });
-  }
+}
 } catch (error) {
-  console.error("Error:", error);
-  res.status(500).json({ error: "Internal server error" });
+console.error("Error:", error);
+res.status(500).json({ error: "Internal server error" });
 }
 });
-
 
 
 
@@ -673,6 +660,13 @@ app.get("/favorites", async (req, res) => {
 app.get("/my_favorites", authenticateToken, async (req, res) => {
 try {
   const userId = req.user.userId // Extract user ID from authenticated request
+  const cacheKey = `my_favorites_${userId}`;
+        const cachedFavorites = await client.get(cacheKey);
+        if (cachedFavorites) {
+            console.log("✅ Serving user's favorites from Redis Cache");
+            return res.json(JSON.parse(cachedFavorites));
+        }
+
   const userQuizzes = await pool.query(
    `SELECT q.quiz_id, q.title, q.creator_id, q.audio, q.image
     FROM favorites f
@@ -680,6 +674,7 @@ try {
     WHERE f.person_id = $1`,
    [userId]
 );
+  await client.set(cacheKey, JSON.stringify(userQuizzes.rows), { EX: 600 });
   res.json(userQuizzes.rows)
 } catch (err) {
   console.error(err.message)
@@ -794,7 +789,8 @@ app.post("/update-score", authenticateToken, async (req, res) => {
      if (result.rowCount === 0) {
          return res.status(404).json({ error: "User profile not found." });
      }
-
+     await client.del("leaderboard_top10");
+     await client.del("leaderboard_teams");
 
      res.json({ message: "Score updated successfully!", newScore: result.rows[0].score });
  } catch (error) {
