@@ -159,3 +159,22 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+.question-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    width: 90%;
+    max-width: 800px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+.question {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    line-height: 1.4; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
