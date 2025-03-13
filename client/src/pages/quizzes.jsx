@@ -24,12 +24,15 @@ const QuizPage = () => {
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [loading, setLoading] = useState(true);
+
 
     const displayLimit = 5;
     const audioRef = useRef(null);
     const navigate = useNavigate();
 
     const fetchQuizzes = async (query = "") => {
+        setLoading(true); 
         try {
             const url = query
                 ? `http://localhost:4000/quizzes/search?query=${query}`
@@ -40,10 +43,11 @@ const QuizPage = () => {
             if (data.length > 0) setSelectedQuizIndex(0);
         } catch (error) {
             console.error("Error fetching quizzes:", error);
+        } finally {
+            setLoading(false); 
         }
     };
-
-    // Fetch quizzes on component mount
+    
     useEffect(() => {
         fetchQuizzes();
     }, []);
@@ -161,18 +165,25 @@ const QuizPage = () => {
                         placeholder="Search..."
                         value={searchQuery}
                         onChange={handleSearchInput}
-                        onKeyDown={handleSearchKeyDown} // Search on Enter
+                        onKeyDown={handleSearchKeyDown} 
                     />
                 </div>
-
-                <Carousel
-                    quizzes={quizzes}
-                    selectedIndex={selectedQuizIndex}
-                    setSelectedIndex={setSelectedQuizIndex}
-                    setSelectedQuiz={setSelectedQuiz}
-                    displayLimit={displayLimit}
-                />
+                {loading ? (
+                    <div className="loading-container">
+                        <div className="spinner"></div>
+                        <p>Loading quizzes...</p>
+                    </div>
+                ) : (
+                    <Carousel
+                        quizzes={quizzes}
+                        selectedIndex={selectedQuizIndex}
+                        setSelectedIndex={setSelectedQuizIndex}
+                        setSelectedQuiz={setSelectedQuiz}
+                        displayLimit={displayLimit}
+                    />
+                )}
             </div>
+
 
             {selectedQuiz && (
                 <div className="quiz-popup">
