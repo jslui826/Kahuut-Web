@@ -72,33 +72,40 @@ const QuizPage = () => {
             alert("Please upload an image first");
             return;
         }
-
+        
         setIsUploading(true);
-        const token = localStorage.getItem("token");
-
+        const token = localStorage.getItem("token"); // Retrieve JWT token
+        
+        // 1️⃣ Build FormData
+        const formData = new FormData();
+        formData.append("pfp", imageFile); // "pfp" must match the backend key
+        
         try {
+            // 2️⃣ Send POST request with FormData
             const response = await fetch("http://localhost:4000/uploadPfp", {
-                method: "POST",
-                body: JSON.stringify(imageFile),
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`, // Ensure token is attached
+            },
+            body: formData, // FormData instead of JSON
             });
+        
             const result = await response.json();
-            console.log("Server Response: ", result);
-
+            console.log("Server Response:", result);
+        
             if (response.ok) {
-                alert("Image uploaded successfully!");
+            alert("Image uploaded successfully!");
             } else {
-                alert("Failed to upload image");
+            alert(`Failed to upload image: ${result.error}`);
             }
         } catch (error) {
-            console.error("Error uploading image: ", error);
+            console.error("Error uploading image:", error);
             alert("Error uploading image");
         } finally {
             setIsUploading(false);
         }
     }
+      
 
     return (
         <div className="quiz-page">
