@@ -21,6 +21,9 @@ const QuizPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showMusicPopup, setShowMusicPopup] = useState(false);
     const [currentMusic, setCurrentMusic] = useState(defaultMusic);
+    const [showImageUpload, setShowImageUpload] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const displayLimit = 5;
     const audioRef = useRef(null);
@@ -60,6 +63,15 @@ const QuizPage = () => {
         }
     };
 
+    const handleFileUpload = async () => {
+        if (!imageFile) {
+            alert("Please upload an image first");
+            return;
+        }
+
+        setIsUploading(true);
+    }
+
     return (
         <div className="quiz-page">
             <audio ref={audioRef} src={currentMusic} autoPlay loop>
@@ -82,12 +94,26 @@ const QuizPage = () => {
                 </div>
             )}
 
+            {showImageUpload && (
+                <div className="pfp-popup">
+                    <div className="popup-content-pfp">
+                        <h2>Change Profile Picture</h2>
+                        <label>Select Image</label>
+                        <input type="file" className="file-input file-input-bordered file-input-info w-full max-w-xs" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])}/>
+                            <button onClick={handleFileUpload} disabled={isUploading}>
+                                {isUploading ? "Uploading..." : "Submit Image"}
+                            </button>
+                        <button onClick={() => setShowImageUpload(false)}>Close</button>
+                    </div>
+                </div>
+            )}
+
             <div className="sidebar">
                 <div className="profile-section">
                     <img src={pfp} alt="User" className="profile-icon" />
                 </div>
                 <ul className="menu">
-                    <li onClick={() => navigate("/profile")}>Profile</li>
+                    <li onClick={() => setShowImageUpload(true)}>Profile</li>
                     <li>Quizzes</li>
                     <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
                     <li onClick={() => setShowMusicPopup(true)}>Music</li>
