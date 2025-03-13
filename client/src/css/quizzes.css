@@ -409,3 +409,10 @@ h1 {
 .search-bar input::placeholder {
     color: #888;
 }
+
+.quiz-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 5px;
+}

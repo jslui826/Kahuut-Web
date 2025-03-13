@@ -16,7 +16,7 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
             setSelectedIndex((prev) => prev + 1);
         }
         if ((selectedIndex + 1) % displayLimit === 0 && selectedIndex < quizzes.length - 1) {
-            setSelectedIndex((prev) => Math.min(quizzes.length - 1, prev ));
+            setSelectedIndex((prev) => Math.min(quizzes.length - 1, prev));
         }
     };
 
@@ -38,7 +38,17 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
                         onClick={() => setSelectedQuiz(quiz)}
                     >
                         <h3>{quiz.title}</h3>
-                        <p>{quiz.description}</p>
+                        
+                        {/* Add quiz image */}
+                        {quiz.image_base64 ? (
+                            <img 
+                                src={`data:image/png;base64,${quiz.image_base64}`} 
+                                alt={quiz.title} 
+                                className="quiz-image"
+                            />
+                        ) : (
+                            <p>No image available</p>
+                        )}
                     </div>
                 ))}
             </div>
