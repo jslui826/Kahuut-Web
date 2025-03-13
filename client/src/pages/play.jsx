@@ -1,22 +1,73 @@
 import React, { useState, useEffect } from "react";
-import quizData from "../data/quizData"; 
-import { useNavigate } from "react-router-dom"; 
+import { useParams, useNavigate } from "react-router-dom";
 import "../css/quizplay.css";
 
 const Play = () => {
+    const { quizId } = useParams(); // Get quiz ID from URL
     const navigate = useNavigate(); 
+    const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState(null);
     const [stage, setStage] = useState("question");
-    const [timeLeft, setTimeLeft] = useState(10);
+    const [timeLeft, setTimeLeft] = useState(7);
     const [confirmTimeLeft, setConfirmTimeLeft] = useState(10);
     const [resultTimeLeft, setResultTimeLeft] = useState(5);
     const [nextTimeLeft, setNextTimeLeft] = useState(5);
     const [correctCount, setCorrectCount] = useState(0);
     const [wrongCount, setWrongCount] = useState(0);
     const [incorrectAnswers, setIncorrectAnswers] = useState([]);
-    const question = quizData[currentQuestionIndex];
-    
+    const [shuffledOptions, setShuffledOptions] = useState([]);
+
+    useEffect(() => {
+        async function fetchQuestions() {
+            try {
+                const response = await fetch(`http://localhost:4000/quizzes/${quizId}/questions`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch questions");
+                }
+                const data = await response.json();
+                setQuestions(data);
+                shuffleOptions(data[0]); // Shuffle first question
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        fetchQuestions();
+    }, [quizId]);
+
+    const question = questions[currentQuestionIndex];
+    const optionLabels = ["A)", "B)", "C)", "D)"];
+
+    // Fisher-Yates shuffle function
+    const shuffleArray = (array) => {
+        let shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
+    // Shuffle options when the question changes
+    const shuffleOptions = (question) => {
+        if (!question) return;
+
+        let optionsWithCorrect = question.options.map((option) => ({
+            text: option.replace(/^[A-D]\)\s*/, ""), // Remove any prefixes
+            isCorrect: option === question.correctAnswer
+        }));
+
+        let shuffled = shuffleArray(optionsWithCorrect);
+        setShuffledOptions(shuffled);
+    };
+
+    useEffect(() => {
+        if (questions.length > 0) {
+            shuffleOptions(questions[currentQuestionIndex]);
+        }
+    }, [currentQuestionIndex, questions]);
+
     useEffect(() => {
         if (stage === "question" && timeLeft > 0) {
             const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -41,7 +92,7 @@ const Play = () => {
             const timer = setInterval(() => setResultTimeLeft((prev) => prev - 1), 1000);
             return () => clearInterval(timer);
         } else if (stage === "result" && resultTimeLeft === 0) {
-            if (currentQuestionIndex >= quizData.length - 1) {
+            if (currentQuestionIndex >= questions.length - 1) {
                 setStage("final");
             } else {
                 setStage("next");
@@ -60,21 +111,17 @@ const Play = () => {
     }, [nextTimeLeft, stage]);
 
     const handleOptionClick = (option) => {
-        setSelectedOption(option);
-        
-        // Check if answer is correct immediately
-        if (option === question.correctAnswer) {
+        setSelectedOption(option.text);
+        if (option.isCorrect) {
             setCorrectCount((prev) => prev + 1);
         } else {
             setWrongCount((prev) => prev + 1);
             setIncorrectAnswers((prev) => [...prev, { 
                 question: question.question, 
-                selectedAnswer: option,
-                correctAnswer: question.correctAnswer 
+                selectedAnswer: option.text,
+                correctAnswer: shuffledOptions.find(opt => opt.isCorrect)?.text
             }]);
-    
         }
-
         setStage("confirm");
         setConfirmTimeLeft(7);
     };
@@ -86,7 +133,7 @@ const Play = () => {
         setStage("question");
     };
 
-    const percentageScore = ((correctCount / quizData.length) * 100).toFixed(2);
+    const percentageScore = ((correctCount / questions.length) * 100).toFixed(2);
 
     return (
         <div className="quiz-container">
@@ -96,20 +143,19 @@ const Play = () => {
                 </div>
             )}
 
-            {stage === "question" && (
+            {stage === "question" && question && (
                 <>
                     <div className="question-section">
                         <h1 className="question">{question.question}</h1>
                     </div>
-
                     <div className="options-grid">
-                        {question.options.map((option, index) => (
+                        {shuffledOptions.map((option, index) => (
                             <button
                                 key={index}
                                 className="option-button"
                                 onClick={() => handleOptionClick(option)}
                             >
-                                {option}
+                                {optionLabels[index]} {option.text}
                             </button>
                         ))}
                     </div>
@@ -128,8 +174,8 @@ const Play = () => {
             )}
 
             {stage === "result" && (
-                <div className={`overlay result-screen ${selectedOption === question.correctAnswer ? "correct" : "wrong"}`}>
-                    <h2>{selectedOption === question.correctAnswer ? "Correct!" : "Wrong!"}</h2>
+                <div className={`overlay result-screen ${selectedOption === shuffledOptions.find(opt => opt.isCorrect)?.text ? "correct" : "wrong"}`}>
+                    <h2>{selectedOption === shuffledOptions.find(opt => opt.isCorrect)?.text ? "Correct!" : "Wrong!"}</h2>
                     <p>{question.explanation}</p>
                 </div>
             )}
