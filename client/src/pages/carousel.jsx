@@ -27,11 +27,12 @@ const Carousel = ({ quizzes, setQuizzes, selectedIndex, setSelectedQuiz, setSele
   
                // Merge favorite count with quizzes
                setQuizzes((prevQuizzes) =>
-                   prevQuizzes.map((quiz) => ({
-                       ...quiz,
-                       favorites: favoriteMap[quiz.quiz_id] || 0
-                   }))
-               );
+                [...prevQuizzes.map((quiz) => ({
+                    ...quiz,
+                    favorites: favoriteMap[quiz.quiz_id] || 0
+                }))]
+                .sort((a, b) => b.favorites - a.favorites) // Sort in descending order
+            );
            } catch (error) {
                console.error("Error:", error);
            }
