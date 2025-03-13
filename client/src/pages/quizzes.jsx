@@ -174,11 +174,11 @@ const QuizPage = () => {
                         setSelectedQuiz={setSelectedQuiz}
                         displayLimit={displayLimit}
                     />
-                    <footer className="footer m:footer-horizontal bg-base-200 text-base-content p-2 bg-opacity-75">
+                    <footer className="footer m:footer-horizontal bg-base-content text-base-content p-2 bg-opacity-75">
                         <aside></aside>
-                        <button className="flex items-center btn btn-outline btn-secondary">Default</button>
-                        <button className="flex items-center btn btn-outline btn-primary">By Favorites</button>
-                        <button className="flex items-center btn btn-outline btn-secondary">By Me</button>
+                        <button className="flex items-center btn btn-outline btn-info">Default</button>
+                        <button className="flex items-center btn btn-outline btn-success">By Favorites</button>
+                        <button className="flex items-center btn btn-outline btn-info">By Me</button>
                     </footer>
                     </>
                 )}
