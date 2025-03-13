@@ -8,6 +8,7 @@ import Quizzes from './pages/quizzes';
 import Play from "./pages/play";
 import Leaderboard from "./pages/leaderboard";
 import MakeQuiz from "./pages/makequiz";
+import Profile from "./pages/profile";
 
 function App() {
   const { token, setToken } = useToken();
@@ -25,6 +26,7 @@ function App() {
             <Route path="/play/:quizId" element={<Play />} /> {/* Route for Play */}
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/makequiz" element={<MakeQuiz />} />
+            <Route path="/profile" element={<Profile />} />
             
 
             {/* Redirect authenticated users away from login/register */}

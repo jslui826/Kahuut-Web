@@ -81,6 +81,7 @@ const QuizPage = () => {
                     <img src={pfp} alt="User" className="profile-icon" />
                 </div>
                 <ul className="menu">
+                    <li onClick={() => navigate("/profile")}>Profile</li>
                     <li>Quizzes</li>
                     <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
                     <li onClick={() => setShowMusicPopup(true)}>Music</li>
@@ -100,7 +101,6 @@ const QuizPage = () => {
                     />
                 </div>
 
-                {/* ✅ Refactored to use the new Carousel component */}
                 <Carousel
                     quizzes={quizzes}
                     selectedIndex={selectedQuizIndex}
