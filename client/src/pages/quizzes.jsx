@@ -115,7 +115,7 @@ const QuizPage = () => {
                     <div className="popup-content">
                         <h2>{selectedQuiz.title}</h2>
                         <p>{selectedQuiz.description}</p>
-                        <button onClick={() => navigate(`/play`)}>Start</button>
+                        <button onClick={() => navigate(`/play/${selectedQuiz.quiz_id}`)}>Start</button>
                         <button onClick={() => setSelectedQuiz(null)}>Close</button>
                     </div>
                 </div>

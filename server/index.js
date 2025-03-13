@@ -363,7 +363,7 @@ app.get("/quizzes/:quiz_id/questions", async (req, res) => {
  
       const formattedQuestions = questions.rows.map((q) => ({
           question: q.question,
-          options: [q.answer1, q.answer2, q.answer3, q.answer4].sort(() => Math.random() - 0.5), // Shuffle answers
+          options: [q.answer1, q.answer2, q.answer3, q.answer4], 
           correctAnswer: q.answer1, // Assume answer1 is the correct one
       }));
  
