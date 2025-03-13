@@ -174,6 +174,7 @@ const QuizPage = () => {
                     <>
                         <Carousel
                             quizzes={quizzes}
+                            setQuizzes={setQuizzes}
                             selectedIndex={selectedQuizIndex}
                             setSelectedIndex={setSelectedQuizIndex}
                             setSelectedQuiz={setSelectedQuiz}
