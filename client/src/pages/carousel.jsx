@@ -6,9 +6,6 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
         if (selectedIndex > 0) {
             setSelectedIndex((prev) => prev - 1);
         }
-        if ((selectedIndex - 1) % displayLimit === displayLimit - 1 && selectedIndex > 0) {
-            setSelectedIndex((prev) => Math.max(0, prev - displayLimit));
-        }
     };
 
     const handleRight = () => {
@@ -39,7 +36,6 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
                     >
                         <div className="font-bold text-2xl"><h3>{quiz.title}</h3></div>
                         
-                        {/* Add quiz image */}
                         {quiz.image_base64 ? (
                             <img 
                                 src={`data:image/png;base64,${quiz.image_base64}`} 
@@ -49,6 +45,9 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
                         ) : (
                             <p>No image available</p>
                         )}
+                        <div className="favorite-section">
+                                ⭐ {quiz.favorites || 0}
+                        </div>
                     </div>
                 ))}
             </div>
