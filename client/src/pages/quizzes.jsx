@@ -148,14 +148,6 @@ const QuizPage = () => {
                     <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
                 </ul>
             </div>
-            <div className="sort-section">
-                <h3>Sort Quizzes</h3>
-                <div className="sort-buttons">
-                    <button>Default</button>
-                    <button>By Favorites</button>
-                    <button>By Me</button>
-                </div>
-            </div>
 
             <div className="main-content">
                 <h1>Select Your Quiz</h1>
@@ -174,6 +166,7 @@ const QuizPage = () => {
                         <p>Loading quizzes...</p>
                     </div>
                 ) : (
+                    <>
                     <Carousel
                         quizzes={quizzes}
                         selectedIndex={selectedQuizIndex}
@@ -181,9 +174,15 @@ const QuizPage = () => {
                         setSelectedQuiz={setSelectedQuiz}
                         displayLimit={displayLimit}
                     />
+                    <footer className="footer m:footer-horizontal bg-base-200 text-base-content p-2 bg-opacity-75">
+                        <aside></aside>
+                        <button className="flex items-center btn btn-outline btn-secondary">Default</button>
+                        <button className="flex items-center btn btn-outline btn-primary">By Favorites</button>
+                        <button className="flex items-center btn btn-outline btn-secondary">By Me</button>
+                    </footer>
+                    </>
                 )}
             </div>
-
 
             {selectedQuiz && (
                 <div className="quiz-popup">
