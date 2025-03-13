@@ -231,7 +231,7 @@ app.post('/signup', async (req, res) => {
    const token = jwt.sign(
      { person_id, email },
      process.env.JWT_SECRET,
-     { expiresIn: '1h' }
+     { expiresIn: '3h' }
    )
 
 
