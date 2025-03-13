@@ -157,6 +157,7 @@ const QuizPage = () => {
             alert("Error uploading image");
         } finally {
             setIsUploading(false);
+            window.location.reload();
         }
     }
     return (
@@ -254,76 +255,76 @@ const QuizPage = () => {
                 )}
             </div>
 
-       {showImageUpload && (
-  <div className="
+            {showImageUpload && (
+                <div className="
     pfp-popup 
     fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
     z-50 w-196 bg-white shadow-lg rounded p-6
   ">
-    <div className="popup-content-pfp space-y-4">
-      <h2 className="text-xl font-bold">Change Profile Picture</h2>
+                    <div className="popup-content-pfp space-y-4">
+                        <h2 className="text-xl font-bold">Change Profile Picture</h2>
 
-      {/* Custom file input and filename display */}
-      <div className="flex flex-col items-center gap-2">
-        {/* “Choose File” button */}
-        <label className="btn btn-primary cursor-pointer">
-          Choose File
-          {/* Hidden native file input */}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => setImageFile(e.target.files[0])}
-          />
-        </label>
+                        {/* Custom file input and filename display */}
+                        <div className="flex flex-col items-center gap-2">
+                            {/* “Choose File” button */}
+                            <label className="btn btn-primary cursor-pointer">
+                                Choose File
+                                {/* Hidden native file input */}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => setImageFile(e.target.files[0])}
+                                />
+                            </label>
 
-        {/* Display chosen file name or fallback text */}
-        <span className="text-black">
-          {imageFile ? imageFile.name : "No file chosen"}
-        </span>
+                            {/* Display chosen file name or fallback text */}
+                            <span className="text-black">
+                                {imageFile ? imageFile.name : "No file chosen"}
+                            </span>
 
-        {/* Show image preview if a file is selected */}
-        {imageFile && (
-          <img
-            src={URL.createObjectURL(imageFile)}
-            alt="preview"
-            className="max-h-40 object-contain border border-gray-300 rounded"
-          />
-        )}
-      </div>
+                            {/* Show image preview if a file is selected */}
+                            {imageFile && (
+                                <img
+                                    src={URL.createObjectURL(imageFile)}
+                                    alt="preview"
+                                    className="max-h-40 object-contain border border-gray-300 rounded"
+                                />
+                            )}
+                        </div>
 
-      {/* Buttons for submit/close */}
-      <div className="flex justify-end gap-2">
-        <button
-          className="btn btn-info"
-          onClick={handleFileUpload}
-          disabled={isUploading}
-        >
-          {isUploading ? "Uploading..." : "Submit Image"}
-        </button>
-        <button
-          className="btn btn-outline"
-          onClick={() => setShowImageUpload(false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                        {/* Buttons for submit/close */}
+                        <div className="flex justify-end gap-2">
+                            <button
+                                className="btn btn-info"
+                                onClick={handleFileUpload}
+                                disabled={isUploading}
+                            >
+                                {isUploading ? "Uploading..." : "Submit Image"}
+                            </button>
+                            <button
+                                className="btn btn-outline"
+                                onClick={() => setShowImageUpload(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
-       {selectedQuiz && (
-           <div className="quiz-popup">
-               <div className="popup-content">
-                   <h2>{selectedQuiz.title}</h2>
-                   <p>{selectedQuiz.description}</p>
-                   <button onClick={() => navigate(`/play/${selectedQuiz.quiz_id}`)}>Start</button>
-                   <button onClick={() => setSelectedQuiz(null)}>Close</button>
-               </div>
-           </div>
-       )}
-   </div>
-);
+            {selectedQuiz && (
+                <div className="quiz-popup">
+                    <div className="popup-content">
+                        <h2>{selectedQuiz.title}</h2>
+                        <p>{selectedQuiz.description}</p>
+                        <button onClick={() => navigate(`/play/${selectedQuiz.quiz_id}`)}>Start</button>
+                        <button onClick={() => setSelectedQuiz(null)}>Close</button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 export default QuizPage;
