@@ -162,23 +162,22 @@ const QuizPage = () => {
                 </div>
             )}
 
-            <div className="sidebar">
-                <div className="profile-section">
-                    <div className="avatar">
-                        <div className="ring-pink-300 ring-offset-base-100 w-24 rounded-full ring">
-                            <img src={pfp} alt="User" />
-                        </div>
-                    </div>
-                </div>
-                <ul className="menu">
-                    <li onClick={() => setShowImageUpload(true)}>Profile</li>
-                    <li>Quizzes</li>
-                    <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
-                    <li onClick={() => setShowMusicPopup(true)}>Music</li>
-                    <li onClick={() => navigate("/makequiz")}>Make Quiz</li>
-                    <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
-                </ul>
-            </div>
+           <div className="sidebar">
+               <div className="profile-section">
+                   <div className="avatar">
+                       <div className="ring-pink-300 ring-offset-base-100 w-24 rounded-full ring">
+                           <img src={pfp} alt="User" />
+                       </div>
+                   </div>
+               </div>
+               <ul className="menu">
+                   <li onClick={() => setShowImageUpload(true)}>Profile</li>
+                   <li onClick={() => navigate("/leaderboard")}>Leaderboard</li>
+                   <li onClick={() => setShowMusicPopup(true)}>Music</li>
+                   <li onClick={() => navigate("/makequiz")}>Make Quiz</li>
+                   <li onClick={() => { localStorage.clear(); navigate("/login"); window.location.reload(); }}>Log Out</li>
+               </ul>
+           </div>
 
             <div className="main-content">
                 <h1>Select Your Quiz</h1>
