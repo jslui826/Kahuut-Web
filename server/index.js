@@ -406,6 +406,26 @@ app.get("/my_quizzes", authenticateToken, async (req, res) => {
   }
 })
 
+// Fetch all quizzes favorited by the current user
+app.get("/my_favorites", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.person_id // Extract user ID from authenticated request
+ 
+ 
+    const userQuizzes = await pool.query(
+      "SELECT * FROM favorites WHERE person_id = $1",
+      [userId]
+    )
+ 
+ 
+    res.json(userQuizzes.rows)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send("Server Error")
+  }
+ })
+ 
+
 // Upload Profile Picture
 app.post("/uploadPfp", authenticateToken, async (req, res) => {
   try {
