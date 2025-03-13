@@ -10,7 +10,7 @@ const Play = () => {
    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
    const [selectedOption, setSelectedOption] = useState(null);
    const [stage, setStage] = useState("question");
-   const [timeLeft, setTimeLeft] = useState(7);
+   const [timeLeft, setTimeLeft] = useState(20);
    const [confirmTimeLeft, setConfirmTimeLeft] = useState(10);
    const [resultTimeLeft, setResultTimeLeft] = useState(5);
    const [nextTimeLeft, setNextTimeLeft] = useState(5);
