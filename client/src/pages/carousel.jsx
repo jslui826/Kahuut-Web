@@ -58,6 +58,8 @@ const Carousel = ({ quizzes, setQuizzes, selectedIndex, setSelectedQuiz, setSele
     let start = Math.floor(selectedIndex / displayLimit) * displayLimit;
     let end = Math.min(quizzes.length, start + displayLimit);
     const visibleQuizzes = quizzes.slice(start, end);
+    const defaultImage = "https://media.discordapp.net/attachments/1145803324059295875/1349687001296801822/jefut.gif?ex=67d40179&is=67d2aff9&hm=f876ab69d2d8cb2b4e4226b6b26d1f8387252b4bcc57c30ac80d3446752c7534&width=324&height=297&"; // Replace with your actual default image URL
+
 
 
     if (quizzes.length === 0) {
@@ -81,15 +83,11 @@ const Carousel = ({ quizzes, setQuizzes, selectedIndex, setSelectedQuiz, setSele
                         >
                             <div className="font-bold text-2xl"><h3>{quiz.title}</h3></div>
 
-                            {quiz.image_base64 ? (
-                                <img
-                                    src={`data:image/png;base64,${quiz.image_base64}`}
-                                    alt={quiz.title}
-                                    className="quiz-image"
-                                />
-                            ) : (
-                                <p>No image available</p>
-                            )}
+                            <img
+                                src={quiz.image_base64 ? `data:image/png;base64,${quiz.image_base64}` : defaultImage}
+                                alt={quiz.title}
+                                className="quiz-image"
+                            />
                             <div className="favorite-section">
                                 ⭐ {quiz.favorites || 0}
                             </div>
