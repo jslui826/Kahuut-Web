@@ -180,7 +180,7 @@ const QuizPage = () => {
            </div>
 
             <div className="main-content">
-                <h1>Select Your Quiz</h1>
+                <h1 className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Select Your Quiz</h1>
                 <div className="search-bar">
                     <input
                         type="text"
@@ -192,7 +192,7 @@ const QuizPage = () => {
                 </div>
                 {loading ? (
                     <div className="loading-container">
-                        <div className="loading loading-spinner loading-lg flex items-center justify-center h-screen loader m-auto"></div>
+                        <div className="loading loading-spinner loading-lg flex items-center justify-center h-screen loader m-auto drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"></div>
                         <p>Loading quizzes...</p>
                     </div>
                 ) : (
