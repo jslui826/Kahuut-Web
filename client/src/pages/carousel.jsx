@@ -37,7 +37,7 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
                         className={`quiz-card ${index + start === selectedIndex ? "selected" : ""}`}
                         onClick={() => setSelectedQuiz(quiz)}
                     >
-                        <h3>{quiz.title}</h3>
+                        <div className="font-bold text-2xl"><h3>{quiz.title}</h3></div>
                         
                         {/* Add quiz image */}
                         {quiz.image_base64 ? (
