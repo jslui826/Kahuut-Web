@@ -25,7 +25,7 @@ const Carousel = ({ quizzes, selectedIndex, setSelectedQuiz, setSelectedIndex, d
     const visibleQuizzes = quizzes.slice(start, end);
 
     return (
-        <div className="quiz-carousel">
+        <div className="quiz-carousel" style={{ marginTop: 80 }}>
             <button className="nav-button left" onClick={handleLeft} disabled={selectedIndex === 0}>
                 ⬅
             </button>
