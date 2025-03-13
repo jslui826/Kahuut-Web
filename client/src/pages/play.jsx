@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../css/quizplay.css";
 
@@ -19,29 +19,89 @@ const Play = () => {
    const [incorrectAnswers, setIncorrectAnswers] = useState([]);
    const [shuffledOptions, setShuffledOptions] = useState([]);
    const [isFavorited, setIsFavorited] = useState(false);
-
-
+   const [audioSrc, setAudioSrc] = useState(null); // Store the audio URL
+   const audioRef = useRef(null); // Audio element reference
 
 
    useEffect(() => {
-       async function fetchQuestions() {
-           try {
-               const response = await fetch(`http://localhost:4000/quizzes/${quizId}/questions`);
-               if (!response.ok) {
-                   throw new Error("Failed to fetch questions");
-               }
-               const data = await response.json();
-               setQuestions(data);
-               shuffleOptions(data[0]);
-           } catch (error) {
-               console.error("Error:", error);
-           }
-       }
+    async function fetchQuizData() {
+        try {
+            const response = await fetch(`http://localhost:4000/quizzes/${quizId}`);
+            
+            if (response.status === 404) {
+                console.error("🚨 Quiz not found (404)");
+                setQuestions([]); // Clear questions
+                setAudioSrc(null); // No audio
+                return;
+            }
+
+            if (!response.ok) throw new Error("Failed to fetch quiz data");
+
+            const data = await response.json();
+            const audioUrl = data.audio_base64 ? `data:audio/mp3;base64,${data.audio_base64}` : null;
+            
+            setAudioSrc(audioUrl);
+
+            if (audioUrl) {
+                console.log("🎵 Audio File Detected!");
+                console.log("🔊 Audio URL:", audioUrl);
+            } else {
+                console.log("🚫 No Audio Found.");
+            }
+
+            // Fetch questions separately
+            const questionsResponse = await fetch(`http://localhost:4000/quizzes/${quizId}/questions`);
+            if (questionsResponse.status === 404) {
+                console.error("🚨 Questions not found (404)");
+                setQuestions([]); // Clear questions
+                return;
+            }
+            if (!questionsResponse.ok) throw new Error("Failed to fetch questions");
+
+            const questionData = await questionsResponse.json();
+            setQuestions(questionData);
+        } catch (error) {
+            console.error("❌ Error fetching quiz:", error);
+        }
+    }
+
+    fetchQuizData();
+}, [quizId]);
 
 
-       fetchQuestions();
-   }, [quizId]);
+useEffect(() => {
+    if (!audioSrc || !questions.length) return; // Ensure quiz is fully loaded first
 
+    if (!audioRef.current && audioSrc) {
+        audioRef.current = new Audio(audioSrc);
+        audioRef.current.loop = false;
+        console.log("🎧 Audio Initialized:", audioSrc);
+    }
+
+    const audio = audioRef.current;
+
+    if (!audio) return; // Prevents errors if audio is missing
+
+    if (stage === "final") {
+        console.log("⏹️ Stopping Audio (Final Stage)");
+        audio.pause();
+        audio.currentTime = 0;
+    } else if (stage === "confirm") {
+        console.log("⏸️ Pausing Audio (Confirm Stage)");
+        audio.pause();
+    } else {
+        console.log("▶️ Playing Audio...");
+        audio.play().catch((error) => console.error("Audio play error:", error));
+    }
+
+    return () => {
+        if (stage === "final" && audio) {
+            console.log("🔁 Resetting Audio");
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    };
+}, [stage, audioSrc, questions]);
 
    useEffect(() => {
        async function checkFavoriteStatus() {
@@ -119,22 +179,22 @@ const Play = () => {
     }, [currentQuestionIndex, questions]);
     
     useEffect(() => {
-        if (stage === "question") {
-            if (timeLeft > 0) {
-                const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-                return () => clearInterval(timer);
-            } else {
-                // Mark unanswered question as incorrect
-                setWrongCount((prev) => prev + 1);
-                setIncorrectAnswers((prev) => [...prev, { 
-                    question: questions[currentQuestionIndex]?.question, 
-                    selectedAnswer: "Unanswered",
-                    correctAnswer: shuffledOptions.find(opt => opt.isCorrect)?.text
-                }]);
-                setStage("confirm");
-            }
+        if (!questions.length || (audioSrc && !audioRef.current)) return; // Wait until questions & audio are ready
+    
+        if (stage === "question" && timeLeft > 0) {
+            const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+            return () => clearInterval(timer);
+        } else if (timeLeft === 0) {
+            setWrongCount((prev) => prev + 1);
+            setIncorrectAnswers((prev) => [...prev, { 
+                question: questions[currentQuestionIndex]?.question, 
+                selectedAnswer: "Unanswered",
+                correctAnswer: shuffledOptions.find(opt => opt.isCorrect)?.text
+            }]);
+            setStage("confirm");
         }
-    }, [timeLeft, stage]);
+    }, [timeLeft, stage, questions, audioSrc]);
+    
     
     useEffect(() => {
         if (stage === "confirm") {
@@ -202,14 +262,16 @@ const Play = () => {
         // Update user score when stage is "final"
         useEffect(() => {
             if (stage === "final") {
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0; // Reset audio
+                }
+        
                 async function updateUserScore() {
                     try {
                         const token = localStorage.getItem("token");
-                        if (!token) {
-                            console.error("❌ No authentication token found.");
-                            return;
-                        }
-    
+                        if (!token) return;
+        
                         const response = await fetch("http://localhost:4000/update-score", {
                             method: "POST",
                             headers: {
@@ -218,22 +280,20 @@ const Play = () => {
                             },
                             body: JSON.stringify({ correctCount }),
                         });
-    
-                        if (!response.ok) {
-                            throw new Error("❌ Failed to update score");
-                        }
-    
+        
+                        if (!response.ok) throw new Error("❌ Failed to update score");
+        
                         const data = await response.json();
                         console.log("✅ Score updated successfully:", data.newScore);
                     } catch (error) {
                         console.error("❌ Error updating score:", error);
                     }
                 }
-    
+        
                 updateUserScore();
             }
-        }, [stage]); // Trigger when `stage` changes to "final"
-
+        }, [stage]);        
+        
    return (
        <div className="quiz-container">
            {stage !== "final" && (
@@ -278,7 +338,7 @@ const Play = () => {
            {stage === "result" && (
                <div className={`overlay result-screen ${selectedOption === shuffledOptions.find(opt => opt.isCorrect)?.text ? "correct" : "wrong"}`}>
                    <h2>{selectedOption === shuffledOptions.find(opt => opt.isCorrect)?.text ? "Correct!" : "Wrong!"}</h2>
-                   <p>{question.explanation}</p>
+                   <p>{question?.explanation ?? "No explanation available."}</p>
                </div>
            )}
 
@@ -314,6 +374,5 @@ const Play = () => {
        </div>
    );
 };
-
 
 export default Play;

@@ -571,3 +571,24 @@ app.get("/getPfp", authenticateToken, async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
   }
 });
+// ✅ Get a single quiz by ID (fix for 404 error)
+app.get("/quizzes/:quizId", async (req, res) => {
+  const { quizId } = req.params;
+  try {
+      const quiz = await pool.query(
+          `SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
+           FROM quizzes WHERE quiz_id = $1`, 
+          [quizId]
+      );
+
+      if (quiz.rows.length === 0) {
+          console.error("🚨 Quiz not found (404) for ID:", quizId);
+          return res.status(404).json({ error: "Quiz not found." });
+      }
+
+      res.json(quiz.rows[0]);
+  } catch (err) {
+      console.error("❌ Error fetching quiz:", err);
+      res.status(500).send("Server Error");
+  }
+});
