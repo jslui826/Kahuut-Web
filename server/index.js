@@ -614,23 +614,15 @@ res.status(500).json({ error: "Internal server error" });
 }
 });
 
-
-
 // Fetch all quizzes created by the current user
 app.get("/my_quizzes", authenticateToken, async (req, res) => {
 try {
   const userId = req.user.userId // Extract user ID from authenticated request
 
-
-
-
   const userQuizzes = await pool.query(
     "SELECT * FROM quizzes WHERE creator_id = $1",
     [userId]
   )
-
-
-
 
   res.json(userQuizzes.rows)
 } catch (err) {
