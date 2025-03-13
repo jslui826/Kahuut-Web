@@ -165,9 +165,9 @@ const QuizPage = () => {
                         />
                         <footer className="footer m:footer-horizontal bg-base-content text-base-content p-2 bg-opacity-75">
                             <aside></aside>
-                            <button className="flex items-center btn btn-outline btn-info">Default</button>
-                            <button className="flex items-center btn btn-outline btn-success">By Favorites</button>
-                            <button className="flex items-center btn btn-outline btn-info">By Me</button>
+                            <button className="flex items-center btn btn-outline btn-info">Top</button>
+                            <button className="flex items-center btn btn-outline btn-success">Favorites</button>
+                            <button className="flex items-center btn btn-outline btn-info">Mine</button>
                         </footer>
                     </>
                 )}
