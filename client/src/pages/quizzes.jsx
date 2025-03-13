@@ -162,7 +162,7 @@ const QuizPage = () => {
                 </div>
             )}
 
-           <div className="sidebar">
+           <div className="sidebar flex justify-center">
                <div className="profile-section">
                    <div className="avatar">
                        <div className="ring-pink-300 ring-offset-base-100 w-24 rounded-full ring">
