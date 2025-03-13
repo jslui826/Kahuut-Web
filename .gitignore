@@ -9,8 +9,7 @@ lerna-debug.log*
 
 node_modules
 node_modules/
-python_subprocesses
-python_subprocesses/
+python_subprocesses/subprocesses/
 dist
 dist-ssr
 *.local
