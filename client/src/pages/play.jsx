@@ -67,46 +67,61 @@ const Play = () => {
             shuffleOptions(questions[currentQuestionIndex]);
         }
     }, [currentQuestionIndex, questions]);
-
+    
     useEffect(() => {
-        if (stage === "question" && timeLeft > 0) {
-            const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-            return () => clearInterval(timer);
-        } else if (stage === "question" && timeLeft === 0) {
-            setStage("confirm");
+        if (stage === "question") {
+            if (timeLeft > 0) {
+                const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+                return () => clearInterval(timer);
+            } else {
+                // Mark unanswered question as incorrect
+                setWrongCount((prev) => prev + 1);
+                setIncorrectAnswers((prev) => [...prev, { 
+                    question: questions[currentQuestionIndex]?.question, 
+                    selectedAnswer: "Unanswered",
+                    correctAnswer: shuffledOptions.find(opt => opt.isCorrect)?.text
+                }]);
+                setStage("confirm");
+            }
         }
     }, [timeLeft, stage]);
-
+    
     useEffect(() => {
-        if (stage === "confirm" && confirmTimeLeft > 0) {
-            const timer = setInterval(() => setConfirmTimeLeft((prev) => prev - 1), 1000);
-            return () => clearInterval(timer);
-        } else if (stage === "confirm" && confirmTimeLeft === 0) {
-            setStage("result");
-            setResultTimeLeft(3);
+        if (stage === "confirm") {
+            if (confirmTimeLeft > 0) {
+                const timer = setInterval(() => setConfirmTimeLeft((prev) => prev - 1), 1000);
+                return () => clearInterval(timer);
+            } else {
+                setStage("result");
+                setResultTimeLeft(3);
+            }
         }
     }, [confirmTimeLeft, stage]);
-
+    
     useEffect(() => {
-        if (stage === "result" && resultTimeLeft > 0) {
-            const timer = setInterval(() => setResultTimeLeft((prev) => prev - 1), 1000);
-            return () => clearInterval(timer);
-        } else if (stage === "result" && resultTimeLeft === 0) {
-            if (currentQuestionIndex >= questions.length - 1) {
-                setStage("final");
+        if (stage === "result") {
+            if (resultTimeLeft > 0) {
+                const timer = setInterval(() => setResultTimeLeft((prev) => prev - 1), 1000);
+                return () => clearInterval(timer);
             } else {
-                setStage("next");
-                setNextTimeLeft(5);
+                if (currentQuestionIndex >= questions.length - 1) {
+                    setStage("final");
+                } else {
+                    setStage("next");
+                    setNextTimeLeft(5);
+                }
             }
         }
     }, [resultTimeLeft, stage]);
-
+    
     useEffect(() => {
-        if (stage === "next" && nextTimeLeft > 0) {
-            const timer = setInterval(() => setNextTimeLeft((prev) => prev - 1), 1000);
-            return () => clearInterval(timer);
-        } else if (stage === "next" && nextTimeLeft === 0) {
-            goToNextQuestion();
+        if (stage === "next") {
+            if (nextTimeLeft > 0) {
+                const timer = setInterval(() => setNextTimeLeft((prev) => prev - 1), 1000);
+                return () => clearInterval(timer);
+            } else {
+                goToNextQuestion();
+            }
         }
     }, [nextTimeLeft, stage]);
 

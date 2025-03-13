@@ -159,6 +159,16 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+.option-button {
+    font-size: 1.8rem;
+    padding: 20px 30px;
+    width: 90%;
+    max-width: 500px;
+    height: auto;
+    margin: 10px auto;
+    border-radius: 10px;
+}
+
 .question-section {
     display: flex;
     justify-content: center;
