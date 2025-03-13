@@ -431,8 +431,7 @@ app.post("/uploadPfp", authenticateToken, async (req, res) => {
 
       res.status(200).json({ message: "Profile picture updated successfully!" });
 
-      // Cleaning up
-      fs.unlinkSync(imagePath);
+    
     });
   } catch (err) {
     console.error(err.message);
