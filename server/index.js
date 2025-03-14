@@ -413,9 +413,9 @@ try {
   const userId = req.user.userId // Extract user ID from authenticated request
 
   const userQuizzes = await pool.query(
-    "SELECT * FROM quizzes WHERE creator_id = $1",
+    "SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64 FROM quizzes WHERE creator_id = $1",
     [userId]
-  )
+  );
 
   res.json(userQuizzes.rows)
 } catch (err) {
@@ -452,13 +452,14 @@ try {
             return res.json(JSON.parse(cachedFavorites));
         }
 
-  const userQuizzes = await pool.query(
-   `SELECT q.quiz_id, q.title, q.creator_id, q.audio, q.image
-    FROM favorites f
-    JOIN quizzes q ON f.quiz_id = q.quiz_id
-    WHERE f.person_id = $1`,
-   [userId]
-);
+        const userQuizzes = await pool.query(
+          `SELECT q.quiz_id AS quiz_id, q.title AS title, q.creator_id AS creator_id, encode(q.audio, 'base64') AS audio_base64, encode(q.image, 'base64') AS image_base64
+           FROM favorites f
+           JOIN quizzes q ON f.quiz_id = q.quiz_id
+           WHERE f.person_id = $1`,
+          [userId]
+       );
+
   await client.set(cacheKey, JSON.stringify(userQuizzes.rows), { EX: 600 });
   res.json(userQuizzes.rows)
 } catch (err) {
