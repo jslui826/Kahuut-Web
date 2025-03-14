@@ -105,7 +105,7 @@ exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, 
     `python3 python_subprocesses/parsing_output.py '${aiOutputPath}' '${creatorEmail}' '${title}' '${imagePath}' '${audioPath}'`,
     (parseErr, parseStdout, parseStderr) => {
         console.log("🔄 Parsing Output Started...");
-        console.log("📂 Image Path Sent:", imagePath);
+        console.log("🏙️ Image Path Sent:", imagePath);
         console.log("🎵 Audio Path Sent:", audioPath);
          if (parseErr) {
             console.error("❌ Parsing Output Error:", parseStderr || "No error message received.");
@@ -135,14 +135,14 @@ exec(`python3 python_subprocesses/pdf_processing.py "${pdfPath}" .env`, (error, 
                   fs.unlinkSync(imagePath);
                   console.log("🗑️ Deleted image file:", imagePath);
               } else {
-                  console.log("⚠️ Skipping deletion: Image file already deleted.");
+                  console.log("💨 Skipping deletion: Image file already deleted.");
               }
     
               if (audioPath && fs.existsSync(audioPath)) {
                   fs.unlinkSync(audioPath);
                   console.log("🗑️ Deleted audio file:", audioPath);
               } else {
-                  console.log("⚠️ Skipping deletion: Audio file already deleted.");
+                  console.log("💨 Skipping deletion: Audio file already deleted.");
               }
           } catch (err) {
               console.error("⚠️ Error during cleanup:", err);
@@ -251,19 +251,16 @@ console.log("Successful login")
 // Get all quizzes (with Redis caching)
 app.get("/quizzes", async (req, res) => {
  try {
-     // 1️⃣ Check Redis cache first
      const cachedData = await client.get("quizzes_all");
      if (cachedData) {
          console.log("✅ Serving from Redis Cache");
          return res.json(JSON.parse(cachedData));
      }
-     // 2️⃣ Fetch from PostgreSQL if cache is empty
      console.log("🚀 Fetching from Database");
      const quizzes = await pool.query(`
          SELECT quiz_id, title, creator_id, encode(audio, 'base64') AS audio_base64, encode(image, 'base64') AS image_base64
          FROM quizzes
      `);
-     // 3️⃣ Store data in Redis with expiration (10 minutes)
      await client.set("quizzes_all", JSON.stringify(quizzes.rows), { EX: 600 });
      res.json(quizzes.rows);
  } catch (err) {
