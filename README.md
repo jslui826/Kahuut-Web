@@ -67,7 +67,7 @@ Run the setup script to install dependencies and connect to the database:
 ```bash
 In a different terminal, navigate to the client directory:
 cd client
-
+npm install
 Start the frontend:
 npm run dev
 ```
