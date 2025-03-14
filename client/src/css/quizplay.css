@@ -80,11 +80,11 @@
 }
 
 .result-screen.correct {
-    background: #28a745; 
+    background: url(https://media.tenor.com/RvBPEdvCqHkAAAAe/social-credit.png);
 }
 
 .result-screen.wrong {
-    background: #dc3545; 
+    background: url(https://media.tenor.com/9r1rE1-uyFYAAAAM/social-credit.gif);
 }
 
 .next-screen {
