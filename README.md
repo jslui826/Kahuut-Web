@@ -44,3 +44,18 @@ This repository contains a setup script for a Node.js and Python-based project. 
 - Installs Python dependencies from `requirements.txt`.
 - Starts a Redis server in the background.
 - Runs the Node.js development server with `nodemon`.
+
+# Running the Application
+
+## Start the Server
+Navigate to the server directory:
+```bash
+cd server
+* Run the setup script to install dependencies and connect to the database:
+* ./setup.sh
+
+In a different terminal, navigate to the client directory:
+cd client
+
+Start the frontend:
+npm run dev
