@@ -4,9 +4,10 @@ The application is intended to be used by UCLA students and provides a
 refreshing way to leisurely study.
 
 ## Features
-*Interactive Quizzes: Engage in dynamic quiz sessions to enhance learning.
-*User-Friendly Interface: Intuitive design for seamless navigation.
-*Real-Time Feedback: Immediate responses to quiz answers for effective learning.
+* Interactive Quizzes: Engage in dynamic quiz sessions to enhance learning.
+* Upload pdfs and let them be automatically parsed into quizzes with our integration with an LLM.
+* User-Friendly Interface: Intuitive design for seamless navigation.
+* Real-Time Feedback: Immediate responses to quiz answers for effective learning.
 
 ## Setup
 Run the application preferably on Chrome.
