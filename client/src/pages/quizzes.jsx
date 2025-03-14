@@ -173,7 +173,7 @@ const QuizPage = () => {
                         <ul>
                             {musicFiles.map((file, index) => (
                                 <li key={index} onClick={() => setCurrentMusic(`/assets/${file}`)}>
-                                    🎵 {file.replace(".mp3", "")}
+                                    {file.replace(".mp3", "")}
                                 </li>
                             ))}
                         </ul>
