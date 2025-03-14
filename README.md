@@ -54,8 +54,13 @@ cd server
 Run the setup script to install dependencies and connect to the database:
 ./setup.sh
 
+```
+
+## Start the client
+```bash
 In a different terminal, navigate to the client directory:
 cd client
 
 Start the frontend:
 npm run dev
+```
