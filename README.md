@@ -33,3 +33,14 @@ Just a side note, if you using Windows, don't.
 * In `server/`, run the bash script `setup.sh`
 
 We have included a bash script that, assuming that the setup above is adhered to, will run the server, redis cache, and the frontend: runapplication.sh
+
+# Project Setup Script
+
+This repository contains a setup script for a Node.js and Python-based project. The script automates the installation of dependencies, sets up a Python virtual environment, starts a Redis server, and launches the development server.
+
+## Features
+- Automatically cleans and reinstalls Node.js dependencies.
+- Creates and activates a Python virtual environment.
+- Installs Python dependencies from `requirements.txt`.
+- Starts a Redis server in the background.
+- Runs the Node.js development server with `nodemon`.
