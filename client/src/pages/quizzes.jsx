@@ -8,11 +8,11 @@ import defaultPfp from "/assets/default_pfp.jpg"
 const token = localStorage.getItem("token");
 const defaultMusic = "/assets/ZeldaMain.mp3";
 const musicFiles = [
-    "01. Ashitaka Sekki.mp3",
-    "01. Hell On Earth.mp3",
-    "1-01. Key.mp3",
-    "07. Mipha's Theme.mp3",
-    "ZeldaMain.mp3",
+    "01. Zelda Main.mp3",
+    "02. Ashitaka Sekki.mp3",
+    "03. Hell On Earth.mp3",
+    "04. Key.mp3",
+    "05. Mipha's Theme.mp3",
 ];
 
 const QuizPage = () => {
