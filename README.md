@@ -46,6 +46,13 @@ This repository contains a setup script for a Node.js and Python-based project. 
 - Runs the Node.js development server with `nodemon`.
 
 # Running the Application
+Before you run ./setup.sh
+cd into server 
+create a env file with the following content
+
+OPENAI_API_KEY=""
+DATABASE_URL=""
+JWT_SECRET=""
 
 ## Start the Server
 Navigate to the server directory:
