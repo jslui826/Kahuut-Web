@@ -6,7 +6,7 @@ import defaultPfp from "/assets/default_pfp.jpg"
 
 
 const token = localStorage.getItem("token");
-const defaultMusic = "/assets/ZeldaMain.mp3";
+const defaultMusic = "/assets/01. Zelda Main.mp3";
 const musicFiles = [
     "01. Zelda Main.mp3",
     "02. Ashitaka Sekki.mp3",
